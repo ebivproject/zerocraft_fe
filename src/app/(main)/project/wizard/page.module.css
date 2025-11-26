@@ -1,0 +1,460 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: calc(100vh - 200px);
+}
+
+/* 헤더 */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-500);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* 단계 표시 */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  padding: 1rem 2rem;
+  background: var(--card-bg);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.stepItem.active {
+  opacity: 1;
+}
+
+.stepItem.completed {
+  opacity: 0.8;
+}
+
+.stepItem.completed .stepNumber {
+  background: var(--primary-500);
+  color: white;
+}
+
+.stepNumber {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.stepItem.active .stepNumber {
+  background: var(--primary-500);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.2);
+}
+
+.stepLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.stepLine {
+  width: 60px;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* 에러 메시지 */
+.errorMessage {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 랜딩 섹션 */
+.landingSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(91, 124, 250, 0.05),
+    rgba(91, 124, 250, 0.1)
+  );
+  border-radius: 1rem;
+  padding: 3rem;
+}
+
+.landingContent {
+  max-width: 600px;
+}
+
+.landingContent h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.landingContent p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.landingIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(91, 124, 250, 0.1);
+  border-radius: 0.5rem;
+}
+
+.featureIcon {
+  font-size: 1.25rem;
+}
+
+.startButton {
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  color: white;
+  border: none;
+  border-radius: 2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(91, 124, 250, 0.3);
+}
+
+.startButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(91, 124, 250, 0.4);
+}
+
+/* 콘텐츠 영역 */
+.content {
+  background: var(--card-bg);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+/* 미리보기 섹션 */
+.previewSection {
+  padding: 0;
+}
+
+/* 입력 폼 섹션 */
+.inputSection {
+  padding: 0;
+}
+
+.inputHeader {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background-secondary);
+}
+
+.previewActions {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--background-secondary);
+}
+
+.backButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+/* 생성 중 섹션 */
+.generatingSection {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.generatingSection h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 1.5rem 0 0.5rem;
+}
+
+.generatingSection p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary-500);
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.progressBar {
+  max-width: 400px;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+  border-radius: 4px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+
+  50% {
+    width: 70%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+/* 완료 섹션 */
+.completeSection {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  color: white;
+  font-size: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.completeSection h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.documentTitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.completeActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.downloadButton {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.downloadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(91, 124, 250, 0.4);
+}
+
+.resetButton {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.editButton {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: var(--primary-500);
+  border: 1px solid var(--primary-500);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editButton:hover {
+  background: rgba(91, 124, 250, 0.1);
+}
+
+/* 결과 미리보기 */
+.resultPreview {
+  background: var(--background-secondary);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.resultPreview h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sectionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sectionList li {
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionIcon {
+  font-size: 1rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .stepIndicator {
+    padding: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .stepLine {
+    display: none;
+  }
+
+  .stepItem {
+    flex: 1;
+    min-width: 60px;
+  }
+
+  .completeActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .downloadButton,
+  .resetButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

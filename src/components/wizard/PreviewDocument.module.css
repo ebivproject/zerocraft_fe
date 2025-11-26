@@ -1,0 +1,268 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+}
+
+/* 탭 네비게이션 */
+.tabs {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  color: #333;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.tab.active {
+  color: #007bff;
+  background: white;
+  border-bottom-color: #007bff;
+}
+
+.lockIcon {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* 문서 본문 영역 */
+.documentContent {
+  padding: 3rem;
+  flex: 1;
+  position: relative;
+}
+
+.documentHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #333;
+}
+
+.documentTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.documentSubtitle {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* 요약본 스타일 (무료 공개) */
+.summarySection {
+  animation: fadeIn 0.5s ease;
+}
+
+.sectionTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionTitle::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 24px;
+  background: #007bff;
+  border-radius: 2px;
+}
+
+.card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #eee;
+}
+
+.cardRow {
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: baseline;
+}
+
+.cardRow:last-child {
+  margin-bottom: 0;
+}
+
+.cardLabel {
+  width: 100px;
+  font-weight: 600;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.cardValue {
+  color: #1a1a1a;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.prose {
+  color: #333;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  white-space: pre-wrap;
+}
+
+.highlight {
+  background: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* 잠긴 섹션 스타일 */
+.lockedSection {
+  position: relative;
+  min-height: 400px;
+}
+
+.blurredContent {
+  filter: blur(6px);
+  user-select: none;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.dummyText {
+  color: #333;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.dummyTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* 잠금 오버레이 (결제 유도) */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+}
+
+.ctaBox {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.4s ease;
+}
+
+.ctaIcon {
+  width: 60px;
+  height: 60px;
+  background: #f0f7ff;
+  color: #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.ctaTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+
+.ctaDesc {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.unlockButton {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.unlockButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

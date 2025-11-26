@@ -169,10 +169,10 @@ export default function HomePage() {
 
   // Intro Animation Effect
   useEffect(() => {
-    // Wait for logo drawing to complete (approx 2.5s) before moving
+    // Wait for logo drawing to complete (approx 2s) before moving
     const timer = setTimeout(() => {
       setIsIntro(false);
-    }, 2500);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -232,7 +232,7 @@ export default function HomePage() {
 
   return (
     <div className={styles.pageContainer}>
-      {/* Hero Section */}
+      {/* Section 1: Logo & Intro */}
       <section
         className={`${styles.heroSection} ${isIntro ? styles.intro : ""}`}
       >
@@ -283,7 +283,10 @@ export default function HomePage() {
             AI로 바로 사업계획서 작성하기
           </button>
         </div>
+      </section>
 
+      {/* Section 2: Search & Popular Grants */}
+      <section className={styles.contentSection}>
         {/* Search Section */}
         <div className={styles.search_section}>
           {/* Search Bar */}
@@ -355,38 +358,39 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Popular Grants Carousel */}
-      <section className={styles.carousel_section}>
-        <div className={styles.carousel_header}>
-          <div className={styles.carousel_titleWrapper}>
-            <h2 className={styles.carousel_title}>
-              <FireIcon />
-              인기 지원사업
-            </h2>
-            <p className={styles.carousel_subtitle}>
-              가장 많이 조회된 지원사업을 확인하세요
-            </p>
+        {/* Popular Grants Carousel */}
+        <div className={styles.carousel_section}>
+          <div className={styles.carousel_header}>
+            <div className={styles.carousel_titleWrapper}>
+              <h2 className={styles.carousel_title}>
+                <FireIcon />
+                실시간 인기 지원사업
+              </h2>
+              <p className={styles.carousel_subtitle}>
+                지금 가장 많은 사람들이 보고 있는 공고입니다
+              </p>
+            </div>
+            <Link href="/grants" className={styles.carousel_viewAll}>
+              전체보기
+              <ArrowIcon />
+            </Link>
           </div>
-          <Link href="/grants" className={styles.carousel_viewAll}>
-            전체보기
-            <ArrowIcon />
-          </Link>
-        </div>
 
-        <div
-          className={styles.carousel_wrapper}
-          onMouseEnter={() => setIsCarouselPaused(true)}
-          onMouseLeave={() => setIsCarouselPaused(false)}
-        >
-          <div className={styles.carousel_gradientLeft} />
-          <div ref={scrollRef} className={styles.carousel_track}>
-            {duplicatedGrants.map((grant, index) => (
-              <GrantCard key={`${grant.id}-${index}`} grant={grant} />
-            ))}
+          <div className={styles.carousel_wrapper}>
+            <div className={styles.carousel_gradientLeft} />
+            <div className={styles.carousel_gradientRight} />
+            <div
+              ref={scrollRef}
+              className={styles.carousel_track}
+              onMouseEnter={() => setIsCarouselPaused(true)}
+              onMouseLeave={() => setIsCarouselPaused(false)}
+            >
+              {duplicatedGrants.map((grant, index) => (
+                <GrantCard key={`${grant.id}-${index}`} grant={grant} />
+              ))}
+            </div>
           </div>
-          <div className={styles.carousel_gradientRight} />
         </div>
       </section>
 

@@ -21,10 +21,10 @@ export default function Footer() {
             <h4>서비스</h4>
             <ul className="footer-links">
               <li>
-                <Link href={ROUTES.GRANTS}>지원사업 검색</Link>
+                <Link href={ROUTES.PROJECT_WIZARD}>AI 사업계획서</Link>
               </li>
               <li>
-                <Link href={ROUTES.PROJECT_WIZARD}>AI 사업계획서</Link>
+                <Link href={ROUTES.GRANTS}>지원사업 검색</Link>
               </li>
               <li>
                 <Link href={ROUTES.MYPAGE}>마이페이지</Link>

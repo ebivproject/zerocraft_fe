@@ -12,8 +12,8 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
-    { href: ROUTES.GRANTS, label: "지원사업 검색" },
     { href: ROUTES.PROJECT_WIZARD, label: "AI 사업계획서" },
+    { href: ROUTES.GRANTS, label: "지원사업 검색" },
     { href: "/pricing", label: "가격" },
   ];
 
