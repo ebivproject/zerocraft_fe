@@ -5,7 +5,7 @@ import { authApi } from "@/lib/api/auth";
 import { creditsApi } from "@/lib/api/credits";
 
 // AI 힌트 최대 사용 횟수 (이용권 당)
-const MAX_AI_HINTS_PER_CREDIT = 10;
+const MAX_AI_HINTS_PER_CREDIT = 20;
 
 interface AuthState {
   user: User | null;

@@ -99,11 +99,20 @@ function WizardPageContent() {
     async (data: WizardData) => {
       setWizardData(data);
       setPendingWizardData(null); // 대기 데이터 초기화
-      setStep("generating");
       setError(null);
 
+      // 1. 먼저 이용권 체크 (생성 전에 확인)
+      if (user && credits <= 0) {
+        setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
+        setPendingWizardData(data); // 데이터 저장
+        setShowPaymentModal(true);
+        return;
+      }
+
+      setStep("generating");
+
       try {
-        // 1. AI API를 호출하여 사업계획서 생성
+        // 2. AI API를 호출하여 사업계획서 생성
         const response = await fetch("/api/ai/generate-plan", {
           method: "POST",
           headers: {
@@ -121,7 +130,7 @@ function WizardPageContent() {
 
         let savedPlanId: string | undefined;
 
-        // 2. 백엔드에 사업계획서 저장 (먼저 저장해서 ID 획득)
+        // 3. 백엔드에 사업계획서 저장
         if (user) {
           try {
             const companyName =
@@ -141,17 +150,16 @@ function WizardPageContent() {
           }
         }
 
-        // 3. 백엔드에서 이용권 사용 (차감) - businessPlanId 포함
+        // 4. 백엔드에서 이용권 사용 (차감) - 생성 성공 후에만 차감
         if (user) {
           try {
             await creditsApi.use("사업계획서 생성", savedPlanId);
+            // 로컬 상태도 업데이트
+            await fetchCredits();
           } catch (creditError) {
             console.error("이용권 차감 실패:", creditError);
-            setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
-            setPendingWizardData(data); // 데이터 저장
-            setShowPaymentModal(true);
-            setStep("step_input");
-            return;
+            // 이미 생성은 완료되었으므로 결과는 보여줌 (차감 실패 경고만)
+            console.warn("이용권 차감에 실패했지만 사업계획서는 생성되었습니다.");
           }
         }
 
@@ -167,7 +175,7 @@ function WizardPageContent() {
         setStep("step_input");
       }
     },
-    [user, searchParams]
+    [user, credits, searchParams, fetchCredits]
   );
 
   // 위자드 완료 -> 생성 시도
