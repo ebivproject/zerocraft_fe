@@ -561,8 +561,8 @@ export default function StepByStepWizard({
       return;
     }
 
-    // AI 힌트 사용 차감
-    if (!useAiHint()) {
+    // AI 힌트 사용 가능 여부 체크 (차감은 성공 후에)
+    if (aiHintsRemaining <= 0) {
       setHintError("AI 힌트 사용 횟수를 모두 소진했습니다.");
       return;
     }
@@ -593,6 +593,9 @@ export default function StepByStepWizard({
 
       const result = await response.json();
 
+      // 성공 시에만 AI 힌트 사용 횟수 차감
+      useAiHint();
+
       // 생성된 답변을 현재 입력 필드에 설정
       handleChange(result.content);
       setShowHintModal(false);
@@ -600,6 +603,7 @@ export default function StepByStepWizard({
     } catch (err) {
       console.error("AI 힌트 생성 오류:", err);
       setHintError("AI 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+      // 실패 시 횟수 차감 안됨
     } finally {
       setIsGeneratingHint(false);
     }

@@ -93,8 +93,13 @@ function buildHintPrompt(
   example: string,
   fieldType?: string,
   tableHeaders?: string[],
-  contextInfo?: string
+  contextInfo?: string,
+  maxLength?: number
 ): string {
+  // 예시 길이 + 300자를 기본 최대 글자 수로 설정
+  const exampleLength = example ? example.length : 100;
+  const targetMaxLength = maxLength || exampleLength + 300;
+  
   let formatInstruction = "";
 
   if (fieldType === "list") {
@@ -103,7 +108,8 @@ function buildHintPrompt(
 - 각 항목을 줄바꿈으로 구분하여 작성하세요.
 - 불렛기호(•, - 등)나 번호를 붙이지 마세요.
 - 오직 내용만 작성하세요.
-- 3~5개의 항목으로 작성하세요.`;
+- 3~5개의 항목으로 작성하세요.
+- 전체 글자 수는 ${targetMaxLength}자 이내로 작성하세요.`;
   } else if (fieldType === "table") {
     const headers = tableHeaders ? tableHeaders.join("|") : "";
     formatInstruction = `
@@ -112,18 +118,20 @@ function buildHintPrompt(
 - 각 열(셀)은 파이프 기호(|)로 구분하세요.
 - 헤더: ${headers}
 - 헤더 행은 포함하지 말고 데이터 행만 작성하세요.
-- 3~5개의 행으로 작성하세요.`;
+- 3~5개의 행으로 작성하세요.
+- 전체 글자 수는 ${targetMaxLength}자 이내로 작성하세요.`;
   } else if (fieldType === "textarea") {
     formatInstruction = `
 [출력 형식]
-- 구조화된 형식으로 작성하세요 (【제목】 사용 가능).
-- 구체적인 수치와 데이터를 포함하세요.
-- 최소 100자 이상으로 작성하세요.`;
+- 자연스럽고 읽기 쉬운 문체로 작성하세요.
+- 예시와 비슷한 분량으로 작성하세요.
+- 전체 글자 수는 ${targetMaxLength}자 이내로 작성하세요.`;
   } else {
     formatInstruction = `
 [출력 형식]
 - 간결하고 명확하게 작성하세요.
-- 한 줄로 작성하세요.`;
+- 예시와 비슷한 길이로 작성하세요.
+- ${targetMaxLength}자 이내로 작성하세요.`;
   }
 
   return `당신은 정부 지원사업 사업계획서 작성 전문가입니다.
@@ -143,12 +151,12 @@ ${example}
 ${contextInfo || ""}
 ${formatInstruction}
 
-위 정보를 바탕으로 "${question}"에 대한 전문적인 답변을 작성해주세요.
+위 정보를 바탕으로 "${question}"에 대한 답변을 작성해주세요.
 
 작성 지침:
 1. 사용자의 멘트를 기반으로 내용을 확장하고 구체화하세요.
-2. 정부 지원사업 평가 기준에 맞게 전문적으로 작성하세요.
-3. 구체적인 수치, 근거, 기술적 내용을 포함하세요.
+2. 예시의 길이와 비슷하게, 최대 ${targetMaxLength}자 이내로 작성하세요.
+3. 너무 딱딱하거나 전문적이지 않게, 자연스러운 문체로 작성하세요.
 4. 예시 형식을 참고하되, 사용자의 아이디어에 맞게 커스터마이징하세요.
 5. 설명 없이 바로 답변 내용만 출력하세요.`;
 }
