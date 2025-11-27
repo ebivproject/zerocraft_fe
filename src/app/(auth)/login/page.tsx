@@ -28,7 +28,9 @@ function LoginContent() {
       window.location.href = url.toString();
     } catch (err) {
       console.error("Google 로그인 URL 요청 실패:", err);
-      setError("로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      setError(
+        "로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+      );
       setIsLoading(false);
     }
   };
