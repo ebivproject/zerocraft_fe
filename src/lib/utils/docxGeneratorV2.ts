@@ -930,11 +930,18 @@ export async function downloadBusinessPlanDocxV2(
 ): Promise<void> {
   const doc = generateBusinessPlanDocumentV2(data);
   const blob = await Packer.toBlob(doc);
-  const name =
-    filename ||
-    `사업계획서_${data.sections.generalStatus.data.itemName}_${
+  
+  // 파일명 생성 (확장자 포함)
+  let name: string;
+  if (filename) {
+    // 확장자가 없으면 추가
+    name = filename.endsWith(".docx") ? filename : `${filename}.docx`;
+  } else {
+    name = `사업계획서_${data.sections.generalStatus.data.itemName}_${
       new Date().toISOString().split("T")[0]
     }.docx`;
+  }
+  
   saveAs(blob, name);
 }
 

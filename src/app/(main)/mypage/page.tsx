@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 import { mypageApi } from "@/lib/api/mypage";
 import { favoritesApi } from "@/lib/api/favorites";
 import { businessPlanApi } from "@/lib/api/businessPlan";
+import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
 import styles from "./page.module.css";
 
 // 타입 정의
@@ -98,17 +99,17 @@ export default function MyPage() {
     router.push("/");
   };
 
-  const handleDownload = async (projectId: string) => {
+  const handleDownload = async (projectId: string, projectTitle: string) => {
     try {
-      const blob = await businessPlanApi.download(projectId, "docx");
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `사업계획서_${projectId}.docx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // 백엔드에서 사업계획서 상세 데이터 가져오기
+      const detail = await businessPlanApi.getById(projectId);
+      
+      // 프론트엔드에서 DOCX 생성 (content 필드에 BusinessPlanOutput이 저장됨)
+      if (detail.content) {
+        await downloadBusinessPlanDocxV2(detail.content, projectTitle);
+      } else {
+        throw new Error("사업계획서 데이터가 없습니다.");
+      }
     } catch (error) {
       console.error("다운로드 실패:", error);
       alert("다운로드에 실패했습니다. 다시 시도해주세요.");
@@ -320,7 +321,7 @@ export default function MyPage() {
                     <div className={styles.projectActions}>
                       <button
                         className={styles.downloadButtonLarge}
-                        onClick={() => handleDownload(project.id)}
+                        onClick={() => handleDownload(project.id, project.title)}
                       >
                         <svg
                           width="18"
