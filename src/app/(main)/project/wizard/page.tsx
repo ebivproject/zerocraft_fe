@@ -97,24 +97,12 @@ function WizardPageContent() {
       setError(null);
 
       try {
-        // 1. 백엔드에서 이용권 사용 (차감)
-        if (user) {
-          try {
-            await creditsApi.use("사업계획서 생성");
-          } catch (creditError) {
-            console.error("이용권 차감 실패:", creditError);
-            setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
-            setPendingWizardData(data); // 데이터 저장
-            setShowPaymentModal(true);
-            setStep("step_input");
-            return;
-          }
-        }
-
-        // 2. WizardData를 BusinessPlanOutput으로 변환
+        // 1. WizardData를 BusinessPlanOutput으로 변환
         const output = convertWizardDataToOutput(data);
 
-        // 3. 백엔드에 사업계획서 저장
+        let savedPlanId: string | undefined;
+
+        // 2. 백엔드에 사업계획서 저장 (먼저 저장해서 ID 획득)
         if (user) {
           try {
             const companyName =
@@ -126,10 +114,25 @@ function WizardPageContent() {
               grantId: searchParams.get("grantId") || undefined,
               data: output,
             });
+            savedPlanId = savedPlan.id;
             console.log("사업계획서 저장 완료:", savedPlan.id);
           } catch (saveError) {
             console.error("사업계획서 저장 실패:", saveError);
             // 저장 실패해도 결과는 보여주되 경고만 표시
+          }
+        }
+
+        // 3. 백엔드에서 이용권 사용 (차감) - businessPlanId 포함
+        if (user) {
+          try {
+            await creditsApi.use("사업계획서 생성", savedPlanId);
+          } catch (creditError) {
+            console.error("이용권 차감 실패:", creditError);
+            setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
+            setPendingWizardData(data); // 데이터 저장
+            setShowPaymentModal(true);
+            setStep("step_input");
+            return;
           }
         }
 
