@@ -28,9 +28,9 @@ export default function PaymentModal({
     try {
       // 1. 결제 요청 → paymentId 받음
       const createResponse = await paymentsApi.create({
-        productId: "business_plan_1", // 상품 ID
+        productId: "credit-1", // 상품 ID: credit-1, credit-3, credit-5 중 하나
         paymentMethod: paymentMethod,
-        amount: 29900,
+        amount: 29900, // credit-1 가격
       });
 
       const { paymentId } = createResponse;
