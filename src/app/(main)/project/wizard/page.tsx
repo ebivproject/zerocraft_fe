@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/authStore";
 import { BusinessPlanOutput, businessPlanApi } from "@/lib/api/businessPlan";
 import { creditsApi } from "@/lib/api/credits";
 import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
-import { convertWizardDataToOutput } from "@/lib/utils/wizardDataConverter";
 import StepByStepWizard, {
   WizardData,
 } from "@/components/wizard/StepByStepWizard";
@@ -104,8 +103,21 @@ function WizardPageContent() {
       setError(null);
 
       try {
-        // 1. WizardData를 BusinessPlanOutput으로 변환
-        const output = convertWizardDataToOutput(data);
+        // 1. AI API를 호출하여 사업계획서 생성
+        const response = await fetch("/api/ai/generate-plan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ wizardData: data }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "AI 사업계획서 생성에 실패했습니다.");
+        }
+
+        const { output } = await response.json();
 
         let savedPlanId: string | undefined;
 
@@ -143,14 +155,15 @@ function WizardPageContent() {
           }
         }
 
-        // 4. 약간의 딜레이 (UX)
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
         setResult(output);
         setStep("complete");
       } catch (err) {
-        console.error("변환 오류:", err);
-        setError("사업계획서 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+        console.error("AI 사업계획서 생성 오류:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "사업계획서 생성 중 오류가 발생했습니다. 다시 시도해주세요."
+        );
         setStep("step_input");
       }
     },
