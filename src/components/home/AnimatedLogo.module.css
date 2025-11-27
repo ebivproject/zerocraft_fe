@@ -1,0 +1,85 @@
+.logoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px 50px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.logoContainer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.logoSvg {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  overflow: visible;
+}
+
+.text {
+  font-size: 90px;
+  font-weight: 800;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    sans-serif;
+  fill: transparent;
+  stroke: url(#logoGradient);
+  stroke-width: 2px;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawText 2s ease forwards, fillText 1s ease forwards 1.8s;
+  filter: drop-shadow(0 0 15px rgba(91, 124, 250, 0.4));
+}
+
+@keyframes drawText {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fillText {
+  to {
+    fill: url(#logoGradient);
+    stroke-width: 0;
+  }
+}
+
+.tagline {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--foreground-muted);
+  opacity: 0;
+  animation: fadeIn 0.8s ease forwards;
+  animation-delay: 2.2s;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .logoContainer {
+    padding: 60px 20px 40px;
+  }
+
+  .logoSvg {
+    max-width: 340px;
+  }
+
+  .text {
+    font-size: 80px;
+  }
+
+  .tagline {
+    font-size: 16px;
+  }
+}

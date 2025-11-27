@@ -1,0 +1,547 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Progress Bar */
+.progressWrapper {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progressLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.progressPercent {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--primary-100);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Section Navigation */
+.sectionNav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  scrollbar-width: none;
+}
+
+.sectionNav::-webkit-scrollbar {
+  display: none;
+}
+
+.sectionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card-bg);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  color: var(--foreground-muted);
+}
+
+.sectionItem.active {
+  background: var(--primary-600);
+  color: white;
+  border-color: var(--primary-600);
+}
+
+.sectionItem.completed {
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+  color: var(--primary-700);
+}
+
+.sectionItem.completed .sectionDot {
+  background: var(--primary-500);
+  color: white;
+}
+
+.sectionDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.sectionItem.active .sectionDot {
+  background: white;
+  color: var(--primary-600);
+}
+
+.sectionName {
+  font-weight: 600;
+}
+
+.sectionCount {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+/* Question Card */
+.questionCard {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.questionSection {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  background: var(--primary-50);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.questionNumber {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--foreground-muted);
+}
+
+.questionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 0.75rem 0;
+}
+
+.questionDescription {
+  font-size: 0.95rem;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Example Toggle */
+.exampleToggle {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.exampleSummary {
+  padding: 0.75rem 1rem;
+  background: var(--background-secondary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exampleSummary::-webkit-details-marker {
+  display: none;
+}
+
+.exampleSummary::after {
+  content: "▼";
+  font-size: 0.7rem;
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+details[open] .exampleSummary::after {
+  transform: rotate(180deg);
+}
+
+.exampleContent {
+  padding: 1rem;
+  margin: 0;
+  background: var(--background);
+  font-size: 0.85rem;
+  color: var(--foreground-muted);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  font-family: inherit;
+  border-top: 1px solid var(--border);
+}
+
+/* Input Fields */
+.inputWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.textInput {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.textInput:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(91, 124, 250, 0.1);
+}
+
+.textareaInput {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  resize: vertical;
+  min-height: 200px;
+  line-height: 1.6;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.textareaInput:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(91, 124, 250, 0.1);
+}
+
+.inputError {
+  border-color: #ef4444;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Character Count */
+.charCount {
+  position: absolute;
+  bottom: -1.5rem;
+  right: 0;
+  font-size: 0.8rem;
+  color: var(--foreground-muted);
+}
+
+.charCount .valid {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.charCount .invalid {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Error Message */
+.errorMessage {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.errorMessage::before {
+  content: "⚠️";
+}
+
+/* AI Button */
+.aiButton {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 1rem;
+}
+
+.aiButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 124, 250, 0.3);
+}
+
+.aiButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.prevButton,
+.nextButton,
+.completeButton {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.prevButton {
+  background: var(--card-bg);
+  color: var(--foreground-muted);
+  border: 2px solid var(--border);
+}
+
+.prevButton:hover:not(:disabled) {
+  background: var(--background-secondary);
+  border-color: var(--border);
+}
+
+.prevButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nextButton {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+}
+
+.nextButton:hover:not(:disabled) {
+  background: var(--primary-700);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 124, 250, 0.3);
+}
+
+.nextButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.completeButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+}
+
+.completeButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.completeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* List Input Styles */
+.listInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.listInputItem {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.listInputItem textarea {
+  flex: 1;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.listInputItem textarea:focus {
+  border-color: var(--primary-500);
+  outline: none;
+}
+
+.removeButton {
+  padding: 0.5rem;
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.removeButton:hover {
+  background: #fecaca;
+}
+
+.addButton {
+  padding: 0.75rem;
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border: 1px dashed var(--primary-300);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.addButton:hover {
+  background: var(--primary-100);
+  border-color: var(--primary-500);
+}
+
+/* Table Input Styles */
+.tableInputWrapper {
+  overflow-x: auto;
+}
+
+.tableInput {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.tableInput th {
+  background: var(--background-secondary);
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--foreground-muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.tableInput td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tableInput input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.tableInput input:focus {
+  border-color: var(--primary-500);
+  outline: none;
+}
+
+.tableActionCell {
+  width: 40px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .questionCard {
+    padding: 1.5rem;
+  }
+
+  .questionTitle {
+    font-size: 1.25rem;
+  }
+
+  .sectionNav {
+    padding-bottom: 0.75rem;
+  }
+
+  .navigation {
+    flex-direction: column;
+  }
+
+  .prevButton {
+    order: 2;
+  }
+}

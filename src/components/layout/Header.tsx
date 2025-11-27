@@ -1,25 +1,184 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
+import { useTheme } from "@/context/ThemeProvider";
 import { ROUTES } from "@/constants/routes";
 
 export default function Header() {
+  const pathname = usePathname();
+  const { user, isAuthenticated } = useAuthStore();
+  const { theme, toggleTheme } = useTheme();
+
+  const navItems = [
+    { href: ROUTES.PROJECT_WIZARD, label: "AI 사업계획서" },
+    { href: ROUTES.GRANTS, label: "지원사업 검색" },
+    { href: "/pricing", label: "가격" },
+  ];
+
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+
   return (
     <header className="header">
-      <nav className="nav">
-        <Link href={ROUTES.HOME} className="logo">
-          Craft
-        </Link>
-        <ul className="nav-links">
-          <li>
-            <Link href={ROUTES.GRANTS}>지원사업</Link>
-          </li>
-          <li>
-            <Link href={ROUTES.PROJECT_WIZARD}>사업계획서 작성</Link>
-          </li>
-          <li>
-            <Link href={ROUTES.MYPAGE}>마이페이지</Link>
-          </li>
-        </ul>
-      </nav>
+      <div className="header-container">
+        <div className="header-left">
+          <Link href={ROUTES.HOME} className="logo">
+            <span className="logo-text">ZeroCraft</span>
+          </Link>
+          <nav>
+            <ul className="nav-menu">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`nav-link ${isActive(item.href) ? "active" : ""
+                      }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="header-right">
+          <button
+            className="btn-icon"
+            onClick={toggleTheme}
+            aria-label={
+              theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"
+            }
+          >
+            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+          </button>
+
+          {isAuthenticated && user ? (
+            <Link href={ROUTES.MYPAGE} className="profile-btn">
+              <div className="profile-avatar">
+                {user.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <span className="profile-name">{user.name || "사용자"}</span>
+            </Link>
+          ) : (
+            <>
+              <Link href={ROUTES.LOGIN} className="btn btn-secondary">
+                로그인
+              </Link>
+              <Link href={ROUTES.LOGIN} className="btn btn-primary">
+                회원가입
+              </Link>
+            </>
+          )}
+
+          <button className="btn-icon mobile-menu-btn" aria-label="메뉴">
+            <MenuIcon />
+          </button>
+        </div>
+      </div>
     </header>
+  );
+}
+
+// Icons
+function SearchIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function DocumentIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <line x1="10" y1="9" x2="8" y2="9" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="m4.93 4.93 1.41 1.41" />
+      <path d="m17.66 17.66 1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="m6.34 17.66-1.41 1.41" />
+      <path d="m19.07 4.93-1.41 1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
   );
 }

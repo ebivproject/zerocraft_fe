@@ -1,0 +1,157 @@
+{
+    "documentTitle": "사업계획서 제목",
+    "sections": {
+        "generalStatus": {
+            "title": "□ 일반현황",
+            "data": {
+                "itemName": "아이템명",
+                "outputs": "산출물",
+                "representative": "대표자명",
+                "companyName": "회사명"
+            }
+        },
+        "summary": {
+            "title": "□ 창업 아이템 개요(요약)",
+            "data": {
+                "productName": "제품명",
+                "category": "카테고리",
+                "itemOverview": {
+                    "coreFunctions": "핵심 기능",
+                    "customerBenefits": "고객 편익"
+                },
+                "problemRecognition": "문제 인식",
+                "feasibility": "실현 가능성",
+                "growthStrategy": "성장 전략",
+                "teamConfiguration": "팀 구성"
+            }
+        },
+        "problem": {
+            "title": "1. 문제 인식 (Problem)",
+            "subSections": [
+                {
+                    "subTitle": "1-1. 창업 아이템의 필요성",
+                    "content": {
+                        "marketStatus": "시장 현황",
+                        "problems": [
+                            "문제점1",
+                            "문제점2",
+                            "문제점3"
+                        ]
+                    }
+                }
+            ]
+        },
+        "solution": {
+            "title": "2. 실현 가능성 (Solution)",
+            "subSections": [
+                {
+                    "subTitle": "2-1. 창업 아이템의 개발 계획",
+                    "content": {
+                        "developmentGoals": [
+                            "목표1",
+                            "목표2"
+                        ],
+                        "differentiation": "차별화 전략",
+                        "scheduleTable": [
+                            {
+                                "step": "단계",
+                                "task": "과업",
+                                "period": "기간",
+                                "detail": "세부내용"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "subTitle": "2-2. 정부지원사업비 집행 계획",
+                    "content": {
+                        "budgetPhase1": {
+                            "items": [
+                                {
+                                    "category": "비목",
+                                    "detail": "세부내역",
+                                    "amount": "금액"
+                                }
+                            ],
+                            "total": "합계"
+                        },
+                        "budgetPhase2": {
+                            "items": [
+                                {
+                                    "category": "비목",
+                                    "detail": "세부내역",
+                                    "amount": "금액"
+                                }
+                            ],
+                            "total": "합계"
+                        }
+                    }
+                }
+            ]
+        },
+        "scaleup": {
+            "title": "3. 성장전략 (Scale-up)",
+            "subSections": [
+                {
+                    "subTitle": "3-1. 사업화 추진 전략",
+                    "content": {
+                        "competitorAnalysis": [
+                            "경쟁사1 분석",
+                            "경쟁사2 분석"
+                        ],
+                        "marketEntryStrategy": {
+                            "target": "타겟 고객",
+                            "channel": "유통 채널",
+                            "offline": "오프라인 전략",
+                            "initialGoal": "초기 목표"
+                        },
+                        "businessModel": {
+                            "revenueSources": "수익원",
+                            "pricing": "가격 정책",
+                            "financialProjection": "재무 전망",
+                            "breakEvenPoint": "손익분기점"
+                        },
+                        "esgStrategy": {
+                            "environment": "환경",
+                            "social": "사회",
+                            "governance": "지배구조"
+                        }
+                    }
+                }
+            ]
+        },
+        "team": {
+            "title": "4. 팀 구성 (Team)",
+            "subSections": [
+                {
+                    "subTitle": "4-1. 대표자 및 팀원 구성 계획",
+                    "content": {
+                        "founderCapability": {
+                            "education": "학력",
+                            "experience": "경력",
+                            "qualification": "자격증",
+                            "network": "네트워크",
+                            "achievements": "수상 실적"
+                        },
+                        "teamMembersTable": [
+                            {
+                                "role": "역할",
+                                "task": "담당 업무",
+                                "capability": "역량",
+                                "status": "상태"
+                            }
+                        ],
+                        "partnersTable": [
+                            {
+                                "name": "협력사명",
+                                "role": "역할",
+                                "detail": "세부내용",
+                                "timing": "시기"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
