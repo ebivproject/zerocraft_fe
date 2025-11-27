@@ -29,7 +29,7 @@ type WizardStep =
 function WizardPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, credits, useCredit, addCredits } = useAuthStore();
+  const { user, credits, useCredit, addCredits, fetchCredits } = useAuthStore();
 
   const [step, setStep] = useState<WizardStep>("landing");
   const [simpleData, setSimpleData] = useState<SimpleInputData | null>(null);
@@ -70,9 +70,16 @@ function WizardPageContent() {
     setStep("step_input");
   }, [user, credits, router]);
 
-  // 결제 완료 시 이용권 추가 후 작성 진입 또는 생성 재시도
-  const handlePaymentComplete = useCallback((creditsAdded: number = 1) => {
-    addCredits(creditsAdded); // 백엔드에서 지급된 이용권 수 반영
+  // 결제 완료 시 이용권 잔액 다시 조회 후 작성 진입 또는 생성 재시도
+  const handlePaymentComplete = useCallback(async (creditsAdded: number = 1) => {
+    // 백엔드에서 실제 이용권 잔액 다시 조회
+    try {
+      await fetchCredits();
+    } catch {
+      // 조회 실패 시 로컬로 추가 (fallback)
+      addCredits(creditsAdded);
+    }
+    
     setShowPaymentModal(false);
     setError(null);
 
@@ -86,7 +93,7 @@ function WizardPageContent() {
       // 없으면 기존 작성 단계로 진입
       setStep("step_input");
     }
-  }, [addCredits, pendingWizardData]);
+  }, [addCredits, fetchCredits, pendingWizardData]);
 
   // 사업계획서 생성 함수 (재사용 가능하도록 분리)
   const generateBusinessPlan = useCallback(
