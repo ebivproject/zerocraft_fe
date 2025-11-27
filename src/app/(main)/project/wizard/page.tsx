@@ -70,9 +70,9 @@ function WizardPageContent() {
     setStep("step_input");
   }, [user, credits, router]);
 
-  // 결제 완료 시 이용권 1회 추가 후 작성 진입 또는 생성 재시도
-  const handlePaymentComplete = useCallback(() => {
-    addCredits(1); // 이용권 1회 추가
+  // 결제 완료 시 이용권 추가 후 작성 진입 또는 생성 재시도
+  const handlePaymentComplete = useCallback((creditsAdded: number = 1) => {
+    addCredits(creditsAdded); // 백엔드에서 지급된 이용권 수 반영
     setShowPaymentModal(false);
     setError(null);
 

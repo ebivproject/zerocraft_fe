@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { paymentsApi } from "@/lib/api/credits";
 import styles from "./PaymentModal.module.css";
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPaymentComplete: () => void;
+  onPaymentComplete: (creditsAdded: number) => void;
 }
 
 export default function PaymentModal({
@@ -18,16 +19,42 @@ export default function PaymentModal({
   const [paymentMethod, setPaymentMethod] = useState<"card" | "kakao" | "toss">(
     "card"
   );
+  const [error, setError] = useState<string | null>(null);
 
   const handlePayment = async () => {
     setIsProcessing(true);
+    setError(null);
 
-    // 실제 결제 로직은 여기에 구현
-    // 현재는 Mock으로 2초 후 결제 완료 처리
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      // 1. 결제 요청 → paymentId 받음
+      const createResponse = await paymentsApi.create({
+        productId: "business_plan_1", // 상품 ID
+        paymentMethod: paymentMethod,
+        amount: 29900,
+      });
 
-    setIsProcessing(false);
-    onPaymentComplete();
+      const { paymentId } = createResponse;
+
+      // 2. 데모용: 바로 결제 확인 (실제로는 PG사 결제 완료 후 호출)
+      // 실제 구현 시에는 paymentUrl로 리다이렉트 후 콜백에서 confirm 호출
+      const confirmResponse = await paymentsApi.confirm(paymentId);
+
+      if (confirmResponse.status === "completed") {
+        // 3. 결제 완료 → 이용권 지급됨
+        onPaymentComplete(confirmResponse.creditsAdded);
+      } else {
+        throw new Error("결제 확인에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("결제 오류:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "결제 처리 중 오류가 발생했습니다."
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -107,6 +134,13 @@ export default function PaymentModal({
               <span>29,900원</span>
             </div>
           </div>
+
+          {/* 에러 메시지 */}
+          {error && (
+            <div className={styles.errorMessage}>
+              {error}
+            </div>
+          )}
 
           {/* 결제 버튼 */}
           <button
