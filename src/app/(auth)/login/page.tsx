@@ -19,20 +19,16 @@ function LoginContent() {
     setError(null);
 
     try {
-      // 백엔드에서 Google OAuth URL 받아오기
       const response = await authApi.getGoogleLoginUrl();
-
-      // state 파라미터에 redirect 경로 인코딩하여 추가
       const url = new URL(response.url);
-      url.searchParams.set("state", encodeURIComponent(redirectPath));
 
-      // Google 로그인 페이지로 리다이렉트
+      // URLSearchParams가 자동으로 인코딩하므로 redirectPath를 그대로 넘긴다.
+      url.searchParams.set("state", redirectPath);
+
       window.location.href = url.toString();
     } catch (err) {
       console.error("Google 로그인 URL 요청 실패:", err);
-      setError(
-        "로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
-      );
+      setError("로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
       setIsLoading(false);
     }
   };
