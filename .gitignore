@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+apireq.md
+ddl.md
+folderFrame.txt
+question.ts
