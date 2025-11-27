@@ -37,6 +37,7 @@ function WizardPageContent() {
   const [result, setResult] = useState<BusinessPlanOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingWizardData, setPendingWizardData] = useState<WizardData | null>(null); // 결제 대기 중인 데이터
 
   // 랜딩 -> 간단 입력 (누구나 가능)
   const handleStart = useCallback(() => {
@@ -67,17 +68,29 @@ function WizardPageContent() {
     setStep("step_input");
   }, [user, credits, router]);
 
-  // 결제 완료 시 이용권 1회 추가 후 작성 진입
+  // 결제 완료 시 이용권 1회 추가 후 작성 진입 또는 생성 재시도
   const handlePaymentComplete = useCallback(() => {
     addCredits(1); // 이용권 1회 추가
     setShowPaymentModal(false);
-    setStep("step_input");
-  }, [addCredits]);
+    setError(null);
+    
+    // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
+    if (pendingWizardData) {
+      // 약간의 딜레이 후 생성 재시도 (상태 업데이트 반영을 위해)
+      setTimeout(() => {
+        generateBusinessPlan(pendingWizardData);
+      }, 100);
+    } else {
+      // 없으면 기존 작성 단계로 진입
+      setStep("step_input");
+    }
+  }, [addCredits, pendingWizardData]);
 
-  // 위자드 완료 -> 변환 및 생성 (이용권 차감)
-  const handleWizardComplete = useCallback(
+  // 사업계획서 생성 함수 (재사용 가능하도록 분리)
+  const generateBusinessPlan = useCallback(
     async (data: WizardData) => {
       setWizardData(data);
+      setPendingWizardData(null); // 대기 데이터 초기화
       setStep("generating");
       setError(null);
 
@@ -89,6 +102,7 @@ function WizardPageContent() {
           } catch (creditError) {
             console.error("이용권 차감 실패:", creditError);
             setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
+            setPendingWizardData(data); // 데이터 저장
             setShowPaymentModal(true);
             setStep("step_input");
             return;
@@ -131,6 +145,14 @@ function WizardPageContent() {
     [user, searchParams]
   );
 
+  // 위자드 완료 -> 생성 시도
+  const handleWizardComplete = useCallback(
+    async (data: WizardData) => {
+      await generateBusinessPlan(data);
+    },
+    [generateBusinessPlan]
+  );
+
   // Word 파일 다운로드
   const handleDownload = useCallback(async () => {
     if (!result) return;
@@ -149,6 +171,7 @@ function WizardPageContent() {
     setWizardData({});
     setResult(null);
     setError(null);
+    setPendingWizardData(null);
   }, []);
 
   // 다시 수정하기
@@ -189,6 +212,11 @@ function WizardPageContent() {
       {error && (
         <div className={styles.errorMessage}>
           <span>⚠️</span> {error}
+          {pendingWizardData && (
+            <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', opacity: 0.9 }}>
+              작성하신 내용은 저장되어 있습니다. 결제 후 자동으로 생성됩니다.
+            </p>
+          )}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
 import styles from "./StepByStepWizard.module.css";
 
 // ============================================================
@@ -458,6 +459,15 @@ export default function StepByStepWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<WizardData>(initialData);
   const [error, setError] = useState<string | null>(null);
+  
+  // AI 힌트 관련 상태
+  const [showHintModal, setShowHintModal] = useState(false);
+  const [hintPrompt, setHintPrompt] = useState("");
+  const [isGeneratingHint, setIsGeneratingHint] = useState(false);
+  const [hintError, setHintError] = useState<string | null>(null);
+  
+  // authStore에서 AI 힌트 관련 상태 가져오기
+  const { aiHintsRemaining, useAiHint, isAuthenticated } = useAuthStore();
 
   const currentQuestion = WIZARD_STEPS[currentStep];
   const totalSteps = WIZARD_STEPS.length;
@@ -529,6 +539,72 @@ export default function StepByStepWizard({
     }
   };
 
+  // AI 힌트 모달 열기
+  const openHintModal = () => {
+    if (!isAuthenticated) {
+      setError("AI 힌트를 사용하려면 로그인이 필요합니다.");
+      return;
+    }
+    if (aiHintsRemaining <= 0) {
+      setError("AI 힌트 사용 횟수를 모두 소진했습니다. 이용권을 구매해주세요.");
+      return;
+    }
+    setHintPrompt("");
+    setHintError(null);
+    setShowHintModal(true);
+  };
+
+  // AI 힌트 생성
+  const generateHint = async () => {
+    if (!hintPrompt.trim()) {
+      setHintError("간단한 멘트를 입력해주세요.");
+      return;
+    }
+
+    // AI 힌트 사용 차감
+    if (!useAiHint()) {
+      setHintError("AI 힌트 사용 횟수를 모두 소진했습니다.");
+      return;
+    }
+
+    setIsGeneratingHint(true);
+    setHintError(null);
+
+    try {
+      const response = await fetch("/api/ai/generate-hint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userPrompt: hintPrompt,
+          question: currentQuestion.title,
+          questionDescription: currentQuestion.description,
+          example: currentQuestion.example,
+          fieldType: currentQuestion.fieldType,
+          tableHeaders: currentQuestion.tableHeaders,
+          context: data, // 이전에 입력한 데이터 컨텍스트로 전달
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("AI 응답 생성에 실패했습니다.");
+      }
+
+      const result = await response.json();
+      
+      // 생성된 답변을 현재 입력 필드에 설정
+      handleChange(result.content);
+      setShowHintModal(false);
+      setHintPrompt("");
+    } catch (err) {
+      console.error("AI 힌트 생성 오류:", err);
+      setHintError("AI 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsGeneratingHint(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* Progress Bar */}
@@ -588,6 +664,22 @@ export default function StepByStepWizard({
           <summary className={styles.exampleSummary}>💡 예시 보기</summary>
           <pre className={styles.exampleContent}>{currentQuestion.example}</pre>
         </details>
+
+        {/* AI 힌트 버튼 */}
+        {currentQuestion.aiPrompt && (
+          <button
+            type="button"
+            className={styles.aiHintButton}
+            onClick={openHintModal}
+            disabled={!isAuthenticated || aiHintsRemaining <= 0}
+          >
+            <SparklesIcon />
+            AI 힌트로 작성하기
+            <span className={styles.hintCount}>
+              ({aiHintsRemaining}/10)
+            </span>
+          </button>
+        )}
 
         {/* Input Field */}
         <div className={styles.inputWrapper}>
@@ -684,6 +776,86 @@ export default function StepByStepWizard({
           </button>
         )}
       </div>
+
+      {/* AI 힌트 모달 */}
+      {showHintModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowHintModal(false)}>
+          <div className={styles.hintModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.hintModalHeader}>
+              <h3 className={styles.hintModalTitle}>
+                <SparklesIcon />
+                AI 힌트로 작성하기
+              </h3>
+              <button
+                className={styles.hintModalClose}
+                onClick={() => setShowHintModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className={styles.hintModalBody}>
+              <div className={styles.hintQuestionInfo}>
+                <span className={styles.hintQuestionLabel}>현재 질문</span>
+                <p className={styles.hintQuestionTitle}>{currentQuestion.title}</p>
+              </div>
+              
+              <div className={styles.hintInputWrapper}>
+                <label className={styles.hintInputLabel}>
+                  간단한 멘트를 입력해주세요
+                </label>
+                <textarea
+                  className={styles.hintInput}
+                  value={hintPrompt}
+                  onChange={(e) => setHintPrompt(e.target.value)}
+                  placeholder={`예: ${currentQuestion.placeholder?.split('\n')[0] || '내용을 간단히 설명해주세요'}`}
+                  rows={4}
+                  disabled={isGeneratingHint}
+                />
+                <p className={styles.hintInputHelp}>
+                  입력하신 내용을 바탕으로 AI가 &quot;{currentQuestion.title}&quot;에 맞는 전문적인 답변을 생성합니다.
+                </p>
+              </div>
+
+              {hintError && (
+                <div className={styles.hintError}>{hintError}</div>
+              )}
+            </div>
+
+            <div className={styles.hintModalFooter}>
+              <span className={styles.hintRemaining}>
+                남은 힌트: {aiHintsRemaining}회
+              </span>
+              <div className={styles.hintModalButtons}>
+                <button
+                  className={styles.hintCancelButton}
+                  onClick={() => setShowHintModal(false)}
+                  disabled={isGeneratingHint}
+                >
+                  취소
+                </button>
+                <button
+                  className={styles.hintGenerateButton}
+                  onClick={generateHint}
+                  disabled={isGeneratingHint || !hintPrompt.trim()}
+                >
+                  {isGeneratingHint ? (
+                    <>
+                      <SpinnerIcon />
+                      생성 중...
+                    </>
+                  ) : (
+                    <>
+                      <SparklesIcon />
+                      AI 답변 생성
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

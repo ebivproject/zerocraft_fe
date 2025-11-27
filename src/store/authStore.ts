@@ -4,11 +4,15 @@ import { User } from "@/types/auth";
 import { authApi } from "@/lib/api/auth";
 import { creditsApi } from "@/lib/api/credits";
 
+// AI 힌트 최대 사용 횟수 (이용권 당)
+const MAX_AI_HINTS_PER_CREDIT = 10;
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   credits: number;
   isLoading: boolean;
+  aiHintsRemaining: number; // AI 힌트 남은 횟수
 
   // Actions
   setUser: (user: User) => void;
@@ -16,6 +20,10 @@ interface AuthState {
   setCredits: (credits: number) => void;
   useCredit: () => boolean;
   addCredits: (amount: number) => void;
+  
+  // AI 힌트 관련 Actions
+  useAiHint: () => boolean; // AI 힌트 1회 사용, 성공 여부 반환
+  resetAiHints: () => void; // AI 힌트 횟수 리셋 (이용권 구매 시)
 
   // API 연동 Actions
   fetchMe: () => Promise<void>;
@@ -30,6 +38,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       credits: 0,
       isLoading: false,
+      aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT,
 
       setUser: (user) =>
         set({
@@ -43,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
           credits: 0,
+          aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT,
         }),
 
       setCredits: (credits) => set({ credits }),
@@ -57,7 +67,26 @@ export const useAuthStore = create<AuthState>()(
       },
 
       addCredits: (amount) =>
-        set((state) => ({ credits: state.credits + amount })),
+        set((state) => ({ 
+          credits: state.credits + amount,
+          // 이용권 추가 시 AI 힌트도 리셋
+          aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT,
+        })),
+
+      // AI 힌트 1회 사용
+      useAiHint: () => {
+        const { aiHintsRemaining } = get();
+        if (aiHintsRemaining > 0) {
+          set({ aiHintsRemaining: aiHintsRemaining - 1 });
+          return true;
+        }
+        return false;
+      },
+
+      // AI 힌트 횟수 리셋
+      resetAiHints: () => {
+        set({ aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT });
+      },
 
       // 내 정보 조회 (토큰 기반)
       fetchMe: async () => {
@@ -113,6 +142,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         credits: state.credits,
+        aiHintsRemaining: state.aiHintsRemaining,
       }),
     }
   )
