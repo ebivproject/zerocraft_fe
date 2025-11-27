@@ -1,25 +1,42 @@
 export interface Grant {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   organization: string;
   deadline: string;
   amount: string;
   category: string;
+  tags?: string[];
+  views?: number;
   status: "open" | "closed" | "upcoming";
-  createdAt: string;
-  updatedAt: string;
+  eligibility?: string;
+  applicationMethod?: string;
+  requiredDocuments?: string[];
+  contactInfo?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface GrantsResponse {
   data: Grant[];
-  total: number;
-  page: number;
-  limit: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface GrantFilter {
   category?: string;
   status?: string;
   search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: string;
 }

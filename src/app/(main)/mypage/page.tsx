@@ -1,86 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { mypageApi } from "@/lib/api/mypage";
+import { favoritesApi } from "@/lib/api/favorites";
+import { businessPlanApi } from "@/lib/api/businessPlan";
 import styles from "./page.module.css";
 
-// Mock 데이터
-const MOCK_PROJECTS = [
-  {
-    id: "1",
-    title: "AI 기반 물류 최적화 플랫폼 사업계획서",
-    grantTitle: "2025년 창업성장기술개발사업 디딤돌 창업과제",
-    status: "completed" as const,
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-20",
-  },
-  {
-    id: "2",
-    title: "스마트 헬스케어 모니터링 시스템",
-    grantTitle: "혁신창업사업화자금",
-    status: "draft" as const,
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-18",
-  },
-  {
-    id: "3",
-    title: "친환경 패키징 솔루션 개발",
-    grantTitle: "초기창업패키지",
-    status: "completed" as const,
-    createdAt: "2024-01-05",
-    updatedAt: "2024-01-12",
-  },
-];
+// 타입 정의
+interface Project {
+  id: string;
+  title: string;
+  grantTitle?: string;
+  status: "draft" | "completed";
+  createdAt: string;
+  updatedAt: string;
+}
 
-const MOCK_FAVORITES = [
-  {
-    id: "1",
-    title: "2025년 창업성장기술개발사업 디딤돌 창업과제",
-    organization: "중소벤처기업부",
-    deadline: "2025-02-15",
-    amount: "최대 1억원",
-    category: "창업지원",
-  },
-  {
-    id: "2",
-    title: "혁신창업사업화자금 (융자)",
-    organization: "중소벤처기업진흥공단",
-    deadline: "2025-01-31",
-    amount: "최대 1억원",
-    category: "금융지원",
-  },
-  {
-    id: "3",
-    title: "청년창업사관학교 14기 모집",
-    organization: "중소벤처기업부",
-    deadline: "2025-03-10",
-    amount: "최대 1억원",
-    category: "창업지원",
-  },
-];
+interface FavoriteGrant {
+  id: string;
+  title: string;
+  organization: string;
+  deadline: string;
+  amount: string;
+  category: string;
+}
+
+// Fallback 데이터 (API 실패 시 사용)
+const FALLBACK_PROJECTS: Project[] = [];
+const FALLBACK_FAVORITES: FavoriteGrant[] = [];
 
 export default function MyPage() {
   const router = useRouter();
-  const { user, clearUser } = useAuthStore();
-  const [projects] = useState(MOCK_PROJECTS);
-  const [favorites, setFavorites] = useState(MOCK_FAVORITES);
+  const { user, clearUser, logout } = useAuthStore();
+  const [projects, setProjects] = useState<Project[]>(FALLBACK_PROJECTS);
+  const [favorites, setFavorites] =
+    useState<FavoriteGrant[]>(FALLBACK_FAVORITES);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    clearUser();
+  // 마이페이지 데이터 로드
+  const loadMypageData = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+      const response = await mypageApi.getData();
+
+      // 사업계획서 데이터 매핑
+      if (response.businessPlans?.data) {
+        setProjects(
+          response.businessPlans.data.map((plan) => ({
+            id: plan.id,
+            title: plan.title,
+            grantTitle: plan.grantTitle,
+            status: plan.status as "draft" | "completed",
+            createdAt: plan.createdAt,
+            updatedAt: plan.updatedAt,
+          }))
+        );
+      }
+
+      // 찜한 지원사업 데이터 매핑
+      if (response.favorites?.data) {
+        setFavorites(
+          response.favorites.data.map((fav) => ({
+            id: fav.grant.id,
+            title: fav.grant.title,
+            organization: fav.grant.organization,
+            deadline: fav.grant.deadline,
+            amount: fav.grant.amount,
+            category: fav.grant.category,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("마이페이지 데이터 로드 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadMypageData();
+  }, [loadMypageData]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      // 에러가 발생해도 로컬 상태는 정리
+      localStorage.removeItem("token");
+      clearUser();
+    }
     router.push("/");
   };
 
-  const handleDownload = (projectId: string) => {
-    // TODO: 실제 다운로드 로직 구현
-    console.log("Downloading project:", projectId);
-    alert("사업계획서 다운로드를 시작합니다.");
+  const handleDownload = async (projectId: string) => {
+    try {
+      const blob = await businessPlanApi.download(projectId, "docx");
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `사업계획서_${projectId}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("다운로드 실패:", error);
+      alert("다운로드에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
-  const handleRemoveFavorite = (grantId: string) => {
-    setFavorites((prev) => prev.filter((f) => f.id !== grantId));
+  const handleRemoveFavorite = async (grantId: string) => {
+    try {
+      await favoritesApi.remove(grantId);
+      setFavorites((prev) => prev.filter((f) => f.id !== grantId));
+    } catch (error) {
+      console.error("찜 삭제 실패:", error);
+      alert("찜 삭제에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const getDaysUntilDeadline = (deadline: string) => {

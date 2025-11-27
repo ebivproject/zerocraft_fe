@@ -3,21 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { grantsApi } from "@/lib/api/grants";
+import { Grant } from "@/types/grant";
 import styles from "./page.module.css";
 
 // --- Types & Constants ---
-
-interface MockGrant {
-  id: string;
-  title: string;
-  organization: string;
-  deadline: string;
-  amount: string;
-  category: string;
-  tags: string[];
-  views: number;
-  status: "open" | "closed" | "upcoming";
-}
 
 const ALL_TAGS = [
   "창업지원",
@@ -42,7 +32,8 @@ const ALL_TAGS = [
 
 const DEFAULT_TAGS = ALL_TAGS.slice(0, 4);
 
-const MOCK_GRANTS: MockGrant[] = [
+// Fallback Mock 데이터 (API 실패 시 사용)
+const FALLBACK_GRANTS: Grant[] = [
   {
     id: "1",
     title: "2025년 창업성장기술개발사업 디딤돌 창업과제",
@@ -158,6 +149,8 @@ const MOCK_GRANTS: MockGrant[] = [
 // --- Main Page Component ---
 
 export default function HomePage() {
+  const [grants, setGrants] = useState<Grant[]>(FALLBACK_GRANTS);
+  const [isLoadingGrants, setIsLoadingGrants] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -166,6 +159,30 @@ export default function HomePage() {
 
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Fetch grants from API
+  useEffect(() => {
+    const fetchGrants = async () => {
+      try {
+        setIsLoadingGrants(true);
+        const response = await grantsApi.getGrants({
+          limit: "10",
+          sort: "deadline",
+          order: "asc",
+        });
+        if (response.data && response.data.length > 0) {
+          setGrants(response.data);
+        }
+      } catch (error) {
+        console.error("지원사업 목록 조회 실패:", error);
+        // API 실패 시 fallback 데이터 유지
+      } finally {
+        setIsLoadingGrants(false);
+      }
+    };
+
+    fetchGrants();
+  }, []);
 
   // Intro Animation Effect
   useEffect(() => {
@@ -228,7 +245,7 @@ export default function HomePage() {
   };
 
   // Duplicated grants for infinite scroll
-  const duplicatedGrants = [...MOCK_GRANTS, ...MOCK_GRANTS];
+  const duplicatedGrants = [...grants, ...grants];
 
   return (
     <div className={styles.pageContainer}>
@@ -237,9 +254,7 @@ export default function HomePage() {
         className={`${styles.heroSection} ${isIntro ? styles.intro : ""}`}
       >
         {/* Animated Logo */}
-        <div
-          className={styles.logo_container}
-        >
+        <div className={styles.logo_container}>
           <p className={styles.logo_tagline}>AI 기반 사업계획서 작성 도우미</p>
           <svg
             viewBox="0 0 600 120"
@@ -341,8 +356,9 @@ export default function HomePage() {
               {DEFAULT_TAGS.map((tag) => (
                 <button
                   key={tag}
-                  className={`${styles.filter_tag} ${selectedTags.includes(tag) ? styles.active : ""
-                    }`}
+                  className={`${styles.filter_tag} ${
+                    selectedTags.includes(tag) ? styles.active : ""
+                  }`}
                   onClick={() => handleTagToggle(tag)}
                 >
                   #{tag}
@@ -408,7 +424,7 @@ export default function HomePage() {
 
 // --- Helper Components ---
 
-function GrantCard({ grant }: { grant: MockGrant }) {
+function GrantCard({ grant }: { grant: Grant }) {
   const getStatusBadge = () => {
     switch (grant.status) {
       case "open":
@@ -451,7 +467,7 @@ function GrantCard({ grant }: { grant: MockGrant }) {
         {getStatusBadge()}
         <span className={styles.card_views}>
           <EyeIcon />
-          {formatViews(grant.views)}
+          {formatViews(grant.views ?? 0)}
         </span>
       </div>
 
@@ -467,7 +483,7 @@ function GrantCard({ grant }: { grant: MockGrant }) {
       </div>
 
       <div className={styles.card_tags}>
-        {grant.tags.slice(0, 2).map((tag) => (
+        {(grant.tags ?? []).slice(0, 2).map((tag) => (
           <span key={tag} className={styles.card_tag}>
             #{tag}
           </span>
@@ -526,8 +542,9 @@ function TagModal({
           {ALL_TAGS.map((tag) => (
             <button
               key={tag}
-              className={`${styles.modal_tag} ${selectedTags.includes(tag) ? styles.active : ""
-                }`}
+              className={`${styles.modal_tag} ${
+                selectedTags.includes(tag) ? styles.active : ""
+              }`}
               onClick={() => onTagToggle(tag)}
             >
               <span className={styles.modal_tagIcon}>
