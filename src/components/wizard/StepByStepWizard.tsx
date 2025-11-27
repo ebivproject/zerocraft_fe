@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import styles from "./StepByStepWizard.module.css";
 
 // ============================================================
@@ -45,8 +45,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "산출물 (협약기간 내 목표)",
     description:
       "협약기간 내 제작·개발 완료할 최종 생산품의 형태, 수량 등을 기재해주세요.",
-    placeholder:
-      "예: AI 물류 예측 시스템 1식",
+    placeholder: "예: AI 물류 예측 시스템 1식",
     example:
       "• 시제품 1식 (MVP 버전)\n• 모바일 앱 1식 (iOS/Android)\n• 웹 대시보드 1식\n• 사용자 매뉴얼 1부",
     minLength: 20,
@@ -215,8 +214,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "시장 문제점",
     description:
       "현재 시장에서 발생하고 있는 문제점들을 구체적으로 나열해주세요.",
-    placeholder:
-      "예: 배송 시간 예측 불가: 고객 불만 증가 및 CS 비용 상승",
+    placeholder: "예: 배송 시간 예측 불가: 고객 불만 증가 및 CS 비용 상승",
     example:
       "배송 시간 예측 불가: 고객 불만 증가 및 CS 비용 상승 (연간 평균 15% 매출 손실)\n수작업 기반 경로 설정: 불필요한 이동거리 발생으로 연료비 20% 낭비\n실시간 모니터링 부재: 배송 지연 대응 지연으로 고객 이탈률 증가\n데이터 기반 의사결정 어려움: 수요 예측 실패로 인한 재고 관리 비효율",
     minLength: 100,
@@ -235,8 +233,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "개발 목표",
     description:
       "아이디어를 제품·서비스로 개발 또는 구체화하고자 하는 목표를 작성해주세요.",
-    placeholder:
-      "예: AI 수요 예측 엔진 개발: 95% 이상의 예측 정확도 달성",
+    placeholder: "예: AI 수요 예측 엔진 개발: 95% 이상의 예측 정확도 달성",
     example:
       "AI 수요 예측 엔진 개발: 95% 이상의 예측 정확도 달성\n실시간 경로 최적화 알고리즘 구현: 배송 시간 30% 단축\n통합 관제 대시보드 개발: 실시간 모니터링 및 리포팅 기능\n모바일 앱 개발: iOS/Android 드라이버용 앱",
     minLength: 80,
@@ -265,8 +262,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     id: "schedule",
     section: "실현 가능성",
     title: "사업추진 일정 (협약기간 내)",
-    description:
-      "협약기간 내 추진할 일정을 단계별로 작성해주세요.",
+    description: "협약기간 내 추진할 일정을 단계별로 작성해주세요.",
     placeholder:
       "예: 1|필수 개발 인력 채용|25.01~25.02|AI 전문가 1명, 백엔드 개발자 2명 채용",
     example:
@@ -284,8 +280,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "1단계 정부지원사업비 집행계획",
     description:
       "1단계 정부지원사업비(20백만원 내외) 집행 계획을 작성해주세요.",
-    placeholder:
-      "예: 인건비|개발 인력 3명×6개월|9,000,000",
+    placeholder: "예: 인건비|개발 인력 3명×6개월|9,000,000",
     example:
       "인건비|개발 인력 3명×6개월|9,000,000\n재료비|서버 장비 및 개발 도구 구입|3,000,000\n외주용역비|UI/UX 디자인 외주|5,000,000\n지식재산권|특허 출원 비용|3,000,000",
     minLength: 50,
@@ -301,8 +296,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "2단계 정부지원사업비 집행계획",
     description:
       "2단계 정부지원사업비(40백만원 내외) 집행 계획을 작성해주세요.",
-    placeholder:
-      "예: 인건비|개발 인력 5명×6개월|20,000,000",
+    placeholder: "예: 인건비|개발 인력 5명×6개월|20,000,000",
     example:
       "인건비|개발 인력 5명×6개월|20,000,000\n재료비|클라우드 서버 비용|5,000,000\n외주용역비|보안 점검 및 부하 테스트|8,000,000\n마케팅비|온라인 광고 및 전시회 참가|7,000,000",
     minLength: 50,
@@ -320,8 +314,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     id: "competitorAnalysis",
     section: "성장전략",
     title: "경쟁사 분석",
-    description:
-      "경쟁 제품 및 경쟁사를 분석해주세요.",
+    description: "경쟁 제품 및 경쟁사를 분석해주세요.",
     placeholder:
       "경쟁사명 | 주요 특징 및 장단점 | 비고\n예: A사 | 높은 인지도, 비싼 가격 | 시장 점유율 1위",
     example:
@@ -405,8 +398,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     id: "teamMembers",
     section: "팀 구성",
     title: "팀 구성(안)",
-    description:
-      "팀 구성원 정보를 작성해주세요.",
+    description: "팀 구성원 정보를 작성해주세요.",
     placeholder:
       "예: CTO|기술 총괄 / AI 엔진 개발|컴퓨터공학 박사, AI 연구 경력 8년|완료",
     example:
@@ -424,8 +416,7 @@ export const WIZARD_STEPS: QuestionStep[] = [
     title: "협력 기관 현황 및 협업 방안",
     description:
       "협력(또는 예정)인 파트너, 협력 기관(기업) 등의 역량과 주요 협업 내용을 작성해주세요.",
-    placeholder:
-      "예: ABC물류|물류 인프라 보유|파일럿 테스트 협력|25.08",
+    placeholder: "예: ABC물류|물류 인프라 보유|파일럿 테스트 협력|25.08",
     example:
       "ABC물류|물류 인프라 보유, 연간 100만 건 배송|파일럿 테스트 협력, 피드백 제공|25.08\nXYZ클라우드|국내 1위 클라우드 서비스|클라우드 인프라 할인 지원 (50%)|25.01\n한국물류협회|물류업체 네트워크 1,000개사|잠재 고객사 소개, 세미나 공동 개최|25.03",
     minLength: 50,
@@ -466,7 +457,6 @@ export default function StepByStepWizard({
 }: StepByStepWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<WizardData>(initialData);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const currentQuestion = WIZARD_STEPS[currentStep];
@@ -497,43 +487,6 @@ export default function StepByStepWizard({
     setData((prev) => ({ ...prev, [currentQuestion.id]: value }));
     setError(null);
   };
-
-  // AI 생성
-  const handleAIGenerate = useCallback(async () => {
-    if (!currentQuestion.aiPrompt) return;
-
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/ai/generate-field", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fieldId: currentQuestion.id,
-          prompt: currentQuestion.aiPrompt,
-          context: data, // 이전 답변들을 컨텍스트로 전달
-          example: currentQuestion.example,
-          fieldType: currentQuestion.fieldType,
-          tableHeaders: currentQuestion.tableHeaders,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("AI 생성에 실패했습니다.");
-      }
-
-      const result = await response.json();
-      if (result.content) {
-        handleChange(result.content);
-      }
-    } catch (err) {
-      setError("AI 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
-      console.error(err);
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [currentQuestion, data]);
 
   // 다음 단계
   const handleNext = () => {
@@ -698,27 +651,6 @@ export default function StepByStepWizard({
 
         {/* Error Message */}
         {error && <div className={styles.errorMessage}>{error}</div>}
-
-        {/* AI Generate Button */}
-        {currentQuestion.aiPrompt && (
-          <button
-            className={styles.aiButton}
-            onClick={handleAIGenerate}
-            disabled={isGenerating}
-          >
-            {isGenerating ? (
-              <>
-                <SpinnerIcon />
-                AI가 작성 중...
-              </>
-            ) : (
-              <>
-                <SparklesIcon />
-                AI로 자동 생성
-              </>
-            )}
-          </button>
-        )}
       </div>
 
       {/* Navigation */}
@@ -839,10 +771,7 @@ function TableInput({
         const cells = row.split("|");
         // 헤더 개수만큼 셀 확보
         if (cells.length < headers.length) {
-          return [
-            ...cells,
-            ...Array(headers.length - cells.length).fill(""),
-          ];
+          return [...cells, ...Array(headers.length - cells.length).fill("")];
         }
         return cells.slice(0, headers.length);
       })
