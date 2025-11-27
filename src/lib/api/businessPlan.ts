@@ -1,4 +1,127 @@
 import { BusinessPlanInput } from "@/types/businessPlan";
+import axiosInstance from "../axios";
+import { API_ENDPOINTS } from "@/constants/api";
+
+// ============================================================
+// 백엔드 API 연동 함수
+// ============================================================
+
+// 사업계획서 목록 항목
+export interface BusinessPlanListItem {
+  id: string;
+  title: string;
+  grantId?: string;
+  grantTitle?: string;
+  status: "draft" | "completed";
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 사업계획서 목록 응답
+export interface BusinessPlanListResponse {
+  data: BusinessPlanListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// 사업계획서 상세 응답
+export interface BusinessPlanDetailResponse {
+  id: string;
+  title: string;
+  grantId?: string;
+  grantTitle?: string;
+  content: BusinessPlanOutput;
+  status: "draft" | "completed";
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 사업계획서 생성 요청
+export interface BusinessPlanCreateRequest {
+  title: string;
+  grantId?: string;
+  content?: {
+    sections: Array<{ id: string; title: string; content: string }>;
+  };
+  data?: BusinessPlanOutput; // 프론트엔드 WizardData 변환 결과
+}
+
+// 사업계획서 생성 응답
+export interface BusinessPlanCreateResponse {
+  id: string;
+  title: string;
+  grantId?: string;
+  grantTitle?: string;
+  content: BusinessPlanOutput;
+  status: "draft" | "completed";
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusinessPlanListParams {
+  page?: number;
+  limit?: number;
+  status?: "draft" | "completed";
+  sort?: "createdAt" | "updatedAt";
+  order?: "asc" | "desc";
+}
+
+export const businessPlanApi = {
+  // 사업계획서 목록 조회
+  getList: async (
+    params?: BusinessPlanListParams
+  ): Promise<BusinessPlanListResponse> => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.BUSINESS_PLANS.LIST,
+      { params }
+    );
+    return response.data;
+  },
+
+  // 사업계획서 상세 조회
+  getById: async (id: string): Promise<BusinessPlanDetailResponse> => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.BUSINESS_PLANS.DETAIL(id)
+    );
+    return response.data;
+  },
+
+  // 사업계획서 생성
+  create: async (
+    data: BusinessPlanCreateRequest
+  ): Promise<BusinessPlanCreateResponse> => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.BUSINESS_PLANS.CREATE,
+      data
+    );
+    return response.data;
+  },
+
+  // 사업계획서 다운로드 (백엔드에서 파일 생성)
+  download: async (
+    id: string,
+    format: "docx" | "pdf" = "docx"
+  ): Promise<Blob> => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.BUSINESS_PLANS.DOWNLOAD(id),
+      {
+        params: { format },
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  },
+};
+
+// ============================================================
+// AI API 연동 함수 (프론트엔드 로컬 AI 호출)
+// ============================================================
 
 // AI API를 호출하여 사업계획서 생성
 export async function generateBusinessPlan(

@@ -3,7 +3,8 @@
 import { useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { BusinessPlanOutput } from "@/lib/api/businessPlan";
+import { BusinessPlanOutput, businessPlanApi } from "@/lib/api/businessPlan";
+import { creditsApi } from "@/lib/api/credits";
 import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
 import { convertWizardDataToOutput } from "@/lib/utils/wizardDataConverter";
 import StepByStepWizard, {
@@ -76,36 +77,58 @@ function WizardPageContent() {
   // 위자드 완료 -> 변환 및 생성 (이용권 차감)
   const handleWizardComplete = useCallback(
     async (data: WizardData) => {
-      // 이용권 차감
-      const success = useCredit();
-      if (!success) {
-        setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
-        setShowPaymentModal(true);
-        return;
-      }
-
       setWizardData(data);
       setStep("generating");
       setError(null);
 
       try {
-        // WizardData를 BusinessPlanOutput으로 변환
+        // 1. 백엔드에서 이용권 사용 (차감)
+        if (user) {
+          try {
+            await creditsApi.use("사업계획서 생성");
+          } catch (creditError) {
+            console.error("이용권 차감 실패:", creditError);
+            setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
+            setShowPaymentModal(true);
+            setStep("step_input");
+            return;
+          }
+        }
+
+        // 2. WizardData를 BusinessPlanOutput으로 변환
         const output = convertWizardDataToOutput(data);
 
-        // 약간의 딜레이 (UX)
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // 3. 백엔드에 사업계획서 저장
+        if (user) {
+          try {
+            const companyName =
+              output.sections?.generalStatus?.data?.companyName;
+            const savedPlan = await businessPlanApi.create({
+              title: companyName
+                ? `${companyName} 사업계획서`
+                : output.documentTitle || "새 사업계획서",
+              grantId: searchParams.get("grantId") || undefined,
+              data: output,
+            });
+            console.log("사업계획서 저장 완료:", savedPlan.id);
+          } catch (saveError) {
+            console.error("사업계획서 저장 실패:", saveError);
+            // 저장 실패해도 결과는 보여주되 경고만 표시
+          }
+        }
+
+        // 4. 약간의 딜레이 (UX)
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         setResult(output);
         setStep("complete");
       } catch (err) {
         console.error("변환 오류:", err);
         setError("사업계획서 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
-        // 오류 발생 시 이용권 복구
-        addCredits(1);
         setStep("step_input");
       }
     },
-    [useCredit, addCredits]
+    [user, searchParams]
   );
 
   // Word 파일 다운로드

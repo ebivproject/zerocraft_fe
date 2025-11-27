@@ -10,16 +10,15 @@ export function useAuth() {
   const router = useRouter();
   const { user, isAuthenticated, setUser, clearUser } = useAuthStore();
 
-  const login = useCallback(async (email: string, password: string) => {
+  // Google OAuth 로그인 시작
+  const loginWithGoogle = useCallback(async () => {
     try {
-      const response = await authApi.login({ email, password });
-      localStorage.setItem("token", response.token);
-      setUser(response.user);
-      router.push(ROUTES.HOME);
+      const response = await authApi.getGoogleLoginUrl();
+      window.location.href = response.url;
     } catch (error) {
       throw error;
     }
-  }, [router, setUser]);
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -53,7 +52,7 @@ export function useAuth() {
   return {
     user,
     isAuthenticated,
-    login,
+    loginWithGoogle,
     logout,
     checkAuth,
   };

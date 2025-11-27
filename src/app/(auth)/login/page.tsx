@@ -2,37 +2,39 @@
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { useSearchParams } from "next/navigation";
+import { authApi } from "@/lib/api/auth";
 import styles from "./page.module.css";
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 로그인 후 리다이렉트할 경로
   const redirectPath = searchParams.get("redirect") || "/";
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setError(null);
 
-    // Mock 로그인: 실제 구현 시 Google OAuth로 대체
-    setTimeout(() => {
-      const mockUser = {
-        id: "mock-user-id-12345",
-        email: "user@gmail.com",
-        name: "테스트 사용자",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+    try {
+      // 백엔드에서 Google OAuth URL 받아오기
+      const response = await authApi.getGoogleLoginUrl();
 
-      // Mock 토큰 저장
-      localStorage.setItem("token", "mock-jwt-token-12345");
-      setUser(mockUser);
-      router.push(redirectPath);
-    }, 1000);
+      // state 파라미터에 redirect 경로 인코딩하여 추가
+      const url = new URL(response.url);
+      url.searchParams.set("state", encodeURIComponent(redirectPath));
+
+      // Google 로그인 페이지로 리다이렉트
+      window.location.href = url.toString();
+    } catch (err) {
+      console.error("Google 로그인 URL 요청 실패:", err);
+      setError(
+        "로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+      );
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -50,6 +52,8 @@ function LoginContent() {
             AI와 함께 사업계획서를 작성해보세요.
           </p>
         </div>
+
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.socialButtons}>
           <button

@@ -220,11 +220,40 @@
   }
   ```
 
+### 2.6 이용권 사용 (차감)
+
+- **URL**: `/api/credits/use`
+- **Method**: `POST`
+- **Description**: 사업계획서 생성 시 이용권 1회를 차감합니다.
+- **Headers**:
+  - `Authorization`: `Bearer <token>`
+  - `Content-Type`: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "description": "사업계획서 생성"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "remainingCredits": 2,
+    "message": "이용권이 사용되었습니다."
+  }
+  ```
+- **Response (400 Bad Request)**:
+  ```json
+  {
+    "message": "이용권이 부족합니다."
+  }
+  ```
+
 ---
 
 ## 3. 사업계획서 (Business Plans)
 
-### 2.1 내 사업계획서 목록 조회
+### 3.1 내 사업계획서 목록 조회
 
 - **URL**: `/api/business-plans`
 - **Method**: `GET`
@@ -275,7 +304,7 @@
   }
   ```
 
-### 2.2 사업계획서 상세 조회
+### 3.2 사업계획서 상세 조회
 
 - **URL**: `/api/business-plans/:id`
 - **Method**: `GET`
@@ -319,7 +348,7 @@
   }
   ```
 
-### 2.3 사업계획서 생성
+### 3.3 사업계획서 생성
 
 - **URL**: `/api/business-plans`
 - **Method**: `POST`
@@ -334,9 +363,14 @@
     "grantId": "uuid-v4",
     "content": {
       "sections": []
-    }
+    },
+    "data": {}
   }
   ```
+  - `title` (required): 사업계획서 제목
+  - `grantId` (optional): 연결된 지원사업 ID
+  - `content` (optional): 섹션 기반 콘텐츠 구조
+  - `data` (optional): AI 생성 사업계획서 전체 데이터 (프론트엔드 Wizard 결과물)
 - **Response (201 Created)**:
   ```json
   {
@@ -360,7 +394,7 @@
   }
   ```
 
-### 2.4 사업계획서 다운로드
+### 3.4 사업계획서 다운로드
 
 - **URL**: `/api/business-plans/:id/download`
 - **Method**: `GET`
@@ -386,7 +420,7 @@
 
 ## 4. 찔한 지원사업 (Favorite Grants)
 
-### 3.1 찜한 지원사업 목록 조회
+### 4.1 찜한 지원사업 목록 조회
 
 - **URL**: `/api/favorites/grants`
 - **Method**: `GET`
@@ -446,7 +480,7 @@
   }
   ```
 
-### 3.2 지원사업 찜하기
+### 4.2 지원사업 찜하기
 
 - **URL**: `/api/favorites/grants`
 - **Method**: `POST`
@@ -482,7 +516,7 @@
   }
   ```
 
-### 3.3 지원사업 찜 해제
+### 4.3 지원사업 찜 해제
 
 - **URL**: `/api/favorites/grants/:grantId`
 - **Method**: `DELETE`
@@ -504,7 +538,7 @@
   }
   ```
 
-### 3.4 지원사업 찜 여부 확인
+### 4.4 지원사업 찜 여부 확인
 
 - **URL**: `/api/favorites/grants/:grantId/check`
 - **Method**: `GET`
@@ -524,7 +558,7 @@
 
 ## 5. 지원사업 (Grants)
 
-### 4.1 지원사업 목록 조회
+### 5.1 지원사업 목록 조회
 
 - **URL**: `/api/grants`
 - **Method**: `GET`
@@ -563,7 +597,7 @@
   }
   ```
 
-### 4.2 지원사업 상세 조회
+### 5.2 지원사업 상세 조회
 
 - **URL**: `/api/grants/:id`
 - **Method**: `GET`
@@ -604,7 +638,7 @@
 
 ## 6. 마이페이지 통합 조회
 
-### 5.1 마이페이지 데이터 조회
+### 6.1 마이페이지 데이터 조회
 
 - **URL**: `/api/mypage`
 - **Method**: `GET`
