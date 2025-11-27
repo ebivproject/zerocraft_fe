@@ -724,3 +724,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 토큰이 없거나 유효하지 않은 경우 `401 Unauthorized` 응답을 반환합니다.
+
+---
+
+---
+
+## 데이터베이스 스키마
+
+MySQL DDL은 [`ddl.md`](./ddl.md) 파일을 참조하세요.

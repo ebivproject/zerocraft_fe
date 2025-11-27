@@ -9,13 +9,21 @@ import { convertWizardDataToOutput } from "@/lib/utils/wizardDataConverter";
 import StepByStepWizard, {
   WizardData,
 } from "@/components/wizard/StepByStepWizard";
-import SimpleInputForm, { SimpleInputData } from "@/components/wizard/SimpleInputForm";
+import SimpleInputForm, {
+  SimpleInputData,
+} from "@/components/wizard/SimpleInputForm";
 import PreviewDocument from "@/components/wizard/PreviewDocument";
 import PaymentModal from "@/components/wizard/PaymentModal";
 import styles from "./page.module.css";
 
 // 흐름: 랜딩 -> 간단입력 -> 미리보기 -> (로그인/결제) -> 전체작성 -> 생성중 -> 완료
-type WizardStep = "landing" | "simple_input" | "preview" | "step_input" | "generating" | "complete";
+type WizardStep =
+  | "landing"
+  | "simple_input"
+  | "preview"
+  | "step_input"
+  | "generating"
+  | "complete";
 
 function WizardPageContent() {
   const searchParams = useSearchParams();
@@ -47,13 +55,13 @@ function WizardPageContent() {
       router.push("/login?redirect=/project/wizard");
       return;
     }
-    
+
     // 로그인 됨 + 이용권 없음 -> 결제 모달
     if (credits <= 0) {
       setShowPaymentModal(true);
       return;
     }
-    
+
     // 이용권 있음 -> 전체 작성 진입
     setStep("step_input");
   }, [user, credits, router]);
@@ -66,36 +74,39 @@ function WizardPageContent() {
   }, [addCredits]);
 
   // 위자드 완료 -> 변환 및 생성 (이용권 차감)
-  const handleWizardComplete = useCallback(async (data: WizardData) => {
-    // 이용권 차감
-    const success = useCredit();
-    if (!success) {
-      setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
-      setShowPaymentModal(true);
-      return;
-    }
+  const handleWizardComplete = useCallback(
+    async (data: WizardData) => {
+      // 이용권 차감
+      const success = useCredit();
+      if (!success) {
+        setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
+        setShowPaymentModal(true);
+        return;
+      }
 
-    setWizardData(data);
-    setStep("generating");
-    setError(null);
+      setWizardData(data);
+      setStep("generating");
+      setError(null);
 
-    try {
-      // WizardData를 BusinessPlanOutput으로 변환
-      const output = convertWizardDataToOutput(data);
+      try {
+        // WizardData를 BusinessPlanOutput으로 변환
+        const output = convertWizardDataToOutput(data);
 
-      // 약간의 딜레이 (UX)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+        // 약간의 딜레이 (UX)
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setResult(output);
-      setStep("complete");
-    } catch (err) {
-      console.error("변환 오류:", err);
-      setError("사업계획서 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
-      // 오류 발생 시 이용권 복구
-      addCredits(1);
-      setStep("step_input");
-    }
-  }, [useCredit, addCredits]);
+        setResult(output);
+        setStep("complete");
+      } catch (err) {
+        console.error("변환 오류:", err);
+        setError("사업계획서 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+        // 오류 발생 시 이용권 복구
+        addCredits(1);
+        setStep("step_input");
+      }
+    },
+    [useCredit, addCredits]
+  );
 
   // Word 파일 다운로드
   const handleDownload = useCallback(async () => {
@@ -167,8 +178,10 @@ function WizardPageContent() {
               <div className={styles.landingIcon}>📝</div>
               <h2>예비창업패키지 사업계획서 작성</h2>
               <p>
-                간단한 아이디어만 입력하면 AI가 사업계획서 초안을 무료로 만들어드립니다.
-                <br />마음에 드시면 전체 사업계획서를 받아보세요!
+                간단한 아이디어만 입력하면 AI가 사업계획서 초안을 무료로
+                만들어드립니다.
+                <br />
+                마음에 드시면 전체 사업계획서를 받아보세요!
               </p>
 
               <div className={styles.featureList}>
@@ -215,11 +228,11 @@ function WizardPageContent() {
                 className={styles.unlockButton}
                 onClick={handleUnlockFullReport}
               >
-                {!user 
+                {!user
                   ? "로그인하고 전체 보고서 받기 🔓"
-                  : credits > 0 
-                    ? "전체 사업계획서 작성하기 📄" 
-                    : "이용권 구매하고 전체 보고서 받기 💳"}
+                  : credits > 0
+                  ? "전체 사업계획서 작성하기 📄"
+                  : "이용권 구매하고 전체 보고서 받기 💳"}
               </button>
               <button
                 className={styles.backButton}
