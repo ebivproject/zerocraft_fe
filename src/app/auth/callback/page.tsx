@@ -16,7 +16,7 @@ function CallbackContent() {
       // 백엔드에서 토큰을 직접 전달하는 경우
       const token = searchParams.get("token");
       const redirect = searchParams.get("redirect");
-      
+
       // 기존 code 방식도 지원
       const code = searchParams.get("code");
       const state = searchParams.get("state");
@@ -34,9 +34,11 @@ function CallbackContent() {
         try {
           // 토큰 저장
           localStorage.setItem("token", token);
-          
+
           // 쿠키에도 토큰 저장 (middleware에서 사용)
-          document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7일
+          document.cookie = `token=${token}; path=/; max-age=${
+            7 * 24 * 60 * 60
+          }`; // 7일
 
           // 사용자 정보 가져오기
           const user = await authApi.getMe();
@@ -70,9 +72,11 @@ function CallbackContent() {
 
           // 토큰 저장
           localStorage.setItem("token", response.token);
-          
+
           // 쿠키에도 토큰 저장
-          document.cookie = `token=${response.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+          document.cookie = `token=${response.token}; path=/; max-age=${
+            7 * 24 * 60 * 60
+          }`;
 
           // 사용자 정보 저장
           setUser(response.user);
@@ -123,9 +127,7 @@ function CallbackContent() {
             </div>
             <h2 style={styles.title}>로그인 실패</h2>
             <p style={styles.message}>{error}</p>
-            <p style={styles.redirect}>
-              잠시 후 로그인 페이지로 이동합니다...
-            </p>
+            <p style={styles.redirect}>잠시 후 로그인 페이지로 이동합니다...</p>
           </>
         ) : (
           <>
@@ -152,7 +154,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(180deg, var(--background) 0%, var(--background-secondary) 100%)",
+    background:
+      "linear-gradient(180deg, var(--background) 0%, var(--background-secondary) 100%)",
     padding: "24px",
   },
   card: {

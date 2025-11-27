@@ -37,7 +37,9 @@ function WizardPageContent() {
   const [result, setResult] = useState<BusinessPlanOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [pendingWizardData, setPendingWizardData] = useState<WizardData | null>(null); // 결제 대기 중인 데이터
+  const [pendingWizardData, setPendingWizardData] = useState<WizardData | null>(
+    null
+  ); // 결제 대기 중인 데이터
 
   // 랜딩 -> 간단 입력 (누구나 가능)
   const handleStart = useCallback(() => {
@@ -73,7 +75,7 @@ function WizardPageContent() {
     addCredits(1); // 이용권 1회 추가
     setShowPaymentModal(false);
     setError(null);
-    
+
     // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
     if (pendingWizardData) {
       // 약간의 딜레이 후 생성 재시도 (상태 업데이트 반영을 위해)
@@ -213,7 +215,9 @@ function WizardPageContent() {
         <div className={styles.errorMessage}>
           <span>⚠️</span> {error}
           {pendingWizardData && (
-            <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', opacity: 0.9 }}>
+            <p
+              style={{ fontSize: "0.85rem", marginTop: "0.5rem", opacity: 0.9 }}
+            >
               작성하신 내용은 저장되어 있습니다. 결제 후 자동으로 생성됩니다.
             </p>
           )}

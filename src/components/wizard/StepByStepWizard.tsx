@@ -459,13 +459,13 @@ export default function StepByStepWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<WizardData>(initialData);
   const [error, setError] = useState<string | null>(null);
-  
+
   // AI 힌트 관련 상태
   const [showHintModal, setShowHintModal] = useState(false);
   const [hintPrompt, setHintPrompt] = useState("");
   const [isGeneratingHint, setIsGeneratingHint] = useState(false);
   const [hintError, setHintError] = useState<string | null>(null);
-  
+
   // authStore에서 AI 힌트 관련 상태 가져오기
   const { aiHintsRemaining, useAiHint, isAuthenticated } = useAuthStore();
 
@@ -592,7 +592,7 @@ export default function StepByStepWizard({
       }
 
       const result = await response.json();
-      
+
       // 생성된 답변을 현재 입력 필드에 설정
       handleChange(result.content);
       setShowHintModal(false);
@@ -675,9 +675,7 @@ export default function StepByStepWizard({
           >
             <SparklesIcon />
             AI 힌트로 작성하기
-            <span className={styles.hintCount}>
-              ({aiHintsRemaining}/10)
-            </span>
+            <span className={styles.hintCount}>({aiHintsRemaining}/10)</span>
           </button>
         )}
 
@@ -779,8 +777,14 @@ export default function StepByStepWizard({
 
       {/* AI 힌트 모달 */}
       {showHintModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowHintModal(false)}>
-          <div className={styles.hintModal} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setShowHintModal(false)}
+        >
+          <div
+            className={styles.hintModal}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.hintModalHeader}>
               <h3 className={styles.hintModalTitle}>
                 <SparklesIcon />
@@ -793,13 +797,15 @@ export default function StepByStepWizard({
                 ✕
               </button>
             </div>
-            
+
             <div className={styles.hintModalBody}>
               <div className={styles.hintQuestionInfo}>
                 <span className={styles.hintQuestionLabel}>현재 질문</span>
-                <p className={styles.hintQuestionTitle}>{currentQuestion.title}</p>
+                <p className={styles.hintQuestionTitle}>
+                  {currentQuestion.title}
+                </p>
               </div>
-              
+
               <div className={styles.hintInputWrapper}>
                 <label className={styles.hintInputLabel}>
                   간단한 멘트를 입력해주세요
@@ -808,18 +814,20 @@ export default function StepByStepWizard({
                   className={styles.hintInput}
                   value={hintPrompt}
                   onChange={(e) => setHintPrompt(e.target.value)}
-                  placeholder={`예: ${currentQuestion.placeholder?.split('\n')[0] || '내용을 간단히 설명해주세요'}`}
+                  placeholder={`예: ${
+                    currentQuestion.placeholder?.split("\n")[0] ||
+                    "내용을 간단히 설명해주세요"
+                  }`}
                   rows={4}
                   disabled={isGeneratingHint}
                 />
                 <p className={styles.hintInputHelp}>
-                  입력하신 내용을 바탕으로 AI가 &quot;{currentQuestion.title}&quot;에 맞는 전문적인 답변을 생성합니다.
+                  입력하신 내용을 바탕으로 AI가 &quot;{currentQuestion.title}
+                  &quot;에 맞는 전문적인 답변을 생성합니다.
                 </p>
               </div>
 
-              {hintError && (
-                <div className={styles.hintError}>{hintError}</div>
-              )}
+              {hintError && <div className={styles.hintError}>{hintError}</div>}
             </div>
 
             <div className={styles.hintModalFooter}>

@@ -40,12 +40,17 @@ export async function POST(req: NextRequest) {
     const content = await generateAIContent(fullPrompt);
 
     return NextResponse.json({ content });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("AI 힌트 생성 오류:", error);
-    return NextResponse.json(
-      { error: "AI 힌트 생성 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+
+    // 에러 메시지 상세화
+    let errorMessage = "AI 힌트 생성 중 오류가 발생했습니다.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error("Error details:", error.message, error.stack);
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -150,18 +155,29 @@ ${formatInstruction}
 
 // AI 콘텐츠 생성 (Gemini API 호출)
 async function generateAIContent(prompt: string): Promise<string> {
-  const apiKey = process.env.gemini_api_key;
+  // 환경변수 이름 다양하게 체크 (대소문자)
+  const apiKey = process.env.GEMINI_API_KEY || process.env.gemini_api_key || process.env.GOOGLE_AI_API_KEY;
 
   if (!apiKey) {
-    throw new Error("Gemini API Key가 설정되지 않았습니다.");
+    console.error("Available env keys:", Object.keys(process.env).filter(k => k.toLowerCase().includes('gemini') || k.toLowerCase().includes('google')));
+    throw new Error("Gemini API Key가 설정되지 않았습니다. 환경변수를 확인해주세요.");
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  
+  // gemini-2.5-flash 모델 사용 (2025년 6월 기준 stable 버전)
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
-
-  return text;
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text;
+  } catch (apiError: unknown) {
+    console.error("Gemini API 호출 오류:", apiError);
+    if (apiError instanceof Error) {
+      throw new Error(`Gemini API 오류: ${apiError.message}`);
+    }
+    throw new Error("Gemini API 호출 중 알 수 없는 오류가 발생했습니다.");
+  }
 }

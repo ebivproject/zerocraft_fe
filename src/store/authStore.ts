@@ -20,7 +20,7 @@ interface AuthState {
   setCredits: (credits: number) => void;
   useCredit: () => boolean;
   addCredits: (amount: number) => void;
-  
+
   // AI 힌트 관련 Actions
   useAiHint: () => boolean; // AI 힌트 1회 사용, 성공 여부 반환
   resetAiHints: () => void; // AI 힌트 횟수 리셋 (이용권 구매 시)
@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       addCredits: (amount) =>
-        set((state) => ({ 
+        set((state) => ({
           credits: state.credits + amount,
           // 이용권 추가 시 AI 힌트도 리셋
           aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT,

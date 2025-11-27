@@ -809,16 +809,16 @@ details[open] .exampleSummary::after {
   .hintModal {
     max-height: 85vh;
   }
-  
+
   .hintModalFooter {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .hintModalButtons {
     width: 100%;
   }
-  
+
   .hintCancelButton,
   .hintGenerateButton {
     flex: 1;
