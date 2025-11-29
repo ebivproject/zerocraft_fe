@@ -7,14 +7,6 @@ import { creditsApi } from "@/lib/api/credits";
 // AI 힌트 최대 사용 횟수 (이용권 당)
 const MAX_AI_HINTS_PER_CREDIT = 20;
 
-// ============================================================
-// [MOCK LOGIN] - 제거 시 이 함수를 삭제하세요
-// ============================================================
-const isMockToken = () => {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem("token") === "mock-token-for-development";
-};
-
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -37,11 +29,6 @@ interface AuthState {
   fetchMe: () => Promise<void>;
   fetchCredits: () => Promise<void>;
   logout: () => Promise<void>;
-
-  // ============================================================
-  // [MOCK LOGIN] - 제거 시 이 섹션과 관련 코드를 삭제하세요
-  // ============================================================
-  mockLogin: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -61,7 +48,6 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       clearUser: () => {
-        // [MOCK LOGIN] - 쿠키도 삭제
         if (typeof document !== "undefined") {
           document.cookie = "token=; path=/; max-age=0";
         }
@@ -134,12 +120,6 @@ export const useAuthStore = create<AuthState>()(
 
       // 이용권 잔액 조회
       fetchCredits: async () => {
-        // [MOCK LOGIN] - Mock 토큰이면 API 호출 스킵
-        if (isMockToken()) {
-          console.log("[MOCK] 이용권 조회 스킵 (Mock 모드)");
-          return;
-        }
-
         try {
           const response = await creditsApi.getBalance();
           set({ credits: response.credits });
@@ -159,47 +139,21 @@ export const useAuthStore = create<AuthState>()(
           get().clearUser();
         }
       },
-
-      // ============================================================
-      // [MOCK LOGIN] - 제거 시 이 함수를 삭제하세요
-      // ============================================================
-      mockLogin: () => {
-        const mockUser: User = {
-          id: "mock-user-001",
-          email: "test@zerocraft.dev",
-          name: "테스트 사용자",
-          profileImage: undefined,
-          credits: 10,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        const mockToken = "mock-token-for-development";
-        localStorage.setItem("token", mockToken);
-        // 미들웨어에서 쿠키로 토큰 체크하므로 쿠키에도 저장
-        document.cookie = `token=${mockToken}; path=/; max-age=86400`;
-        set({
-          user: mockUser,
-          isAuthenticated: true,
-          credits: mockUser.credits || 0,
-          aiHintsRemaining: MAX_AI_HINTS_PER_CREDIT,
-        });
-      },
     }),
     {
       name: "auth-storage",
-      version: 2, // 버전 업그레이드로 aiHintsRemaining 리셋
+      version: 2,
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         credits: state.credits,
         aiHintsRemaining: state.aiHintsRemaining,
       }),
-      // 버전 마이그레이션 - 이전 버전에서 aiHintsRemaining을 20으로 리셋
       migrate: (persistedState, version) => {
         if (version < 2) {
           return {
             ...(persistedState as object),
-            aiHintsRemaining: 20, // MAX_AI_HINTS_PER_CREDIT
+            aiHintsRemaining: 20,
           };
         }
         return persistedState;
