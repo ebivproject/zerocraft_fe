@@ -37,13 +37,8 @@ export default function AdminCouponsPage() {
     if (!isHydrated) return;
 
     const checkAuth = async () => {
-      console.log("[Admin] 권한 체크 시작");
-      console.log("[Admin] token:", localStorage.getItem("token"));
-
-      // 토큰이 없으면 로그인 페이지로
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("[Admin] 토큰 없음, 로그인 페이지로 이동");
         router.push("/login?redirect=/admin/coupons");
         return;
       }
@@ -52,29 +47,22 @@ export default function AdminCouponsPage() {
       try {
         const { fetchMe } = useAuthStore.getState();
         await fetchMe();
-        console.log("[Admin] fetchMe 완료");
-      } catch (e) {
-        console.error("[Admin] fetchMe 실패:", e);
+      } catch {
+        // fetchMe 실패 시 무시 (내부에서 처리됨)
       }
 
-      // 최신 상태에서 role 확인
       const currentUser = useAuthStore.getState().user;
-      console.log("[Admin] 최종 사용자 정보:", currentUser);
-      console.log("[Admin] role:", currentUser?.role);
 
       if (!currentUser) {
-        console.log("[Admin] 사용자 정보 없음, 로그인 페이지로 이동");
         router.push("/login?redirect=/admin/coupons");
         return;
       }
 
       if (currentUser.role !== "admin") {
-        console.log("[Admin] 권한 없음 (role:", currentUser.role, "), 홈으로 이동");
         router.push("/");
         return;
       }
 
-      console.log("[Admin] 권한 확인 완료, 페이지 표시");
       setIsAuthChecked(true);
       fetchCoupons();
     };

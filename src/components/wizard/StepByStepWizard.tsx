@@ -542,19 +542,6 @@ export default function StepByStepWizard({
     }
   };
 
-  // ============================================================
-  // [MOCK DATA] - 제거 시 이 함수를 삭제하세요
-  // ============================================================
-  const fillMockData = () => {
-    const mockData: WizardData = {};
-    WIZARD_STEPS.forEach((step) => {
-      mockData[step.id] = step.example;
-    });
-    setData(mockData);
-    // 마지막 질문으로 이동
-    setCurrentStep(totalSteps - 1);
-  };
-
   // AI 힌트 모달 열기
   const openHintModal = () => {
     if (!isAuthenticated) {
@@ -643,31 +630,6 @@ export default function StepByStepWizard({
             style={{ width: `${progress}%` }}
           />
         </div>
-
-        {/* ============================================================ */}
-        {/* [MOCK DATA] - 제거 시 이 버튼을 삭제하세요 */}
-        {/* ============================================================ */}
-        <button
-          type="button"
-          onClick={fillMockData}
-          style={{
-            marginTop: "12px",
-            padding: "8px 16px",
-            background: "#10b981",
-            color: "white",
-            border: "2px dashed #34d399",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "500",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          <span>📝</span>
-          예시 데이터 채우기 (개발용)
-        </button>
       </div>
 
       {/* Section Navigation */}
