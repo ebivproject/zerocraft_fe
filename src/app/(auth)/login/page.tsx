@@ -11,6 +11,9 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 디버깅: 페이지 로드 확인
+  console.log("[Login] 페이지 로드됨, pathname:", typeof window !== "undefined" ? window.location.pathname : "SSR");
+
   // 로그인 후 리다이렉트할 경로
   const redirectPath = searchParams.get("redirect") || "/";
 

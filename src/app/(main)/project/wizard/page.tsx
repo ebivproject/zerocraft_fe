@@ -19,7 +19,7 @@ type WizardStep = "sample_preview" | "step_input" | "generating" | "complete";
 function WizardPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, credits, addCredits, fetchCredits } = useAuthStore();
+  const { user, addCredits, fetchCredits } = useAuthStore();
 
   const [step, setStep] = useState<WizardStep>("sample_preview");
   const [wizardData, setWizardData] = useState<WizardData>({});
@@ -31,22 +31,32 @@ function WizardPageContent() {
   );
 
   // 결제/시작 버튼 클릭 핸들러
-  const handlePaymentClick = useCallback(() => {
+  const handlePaymentClick = useCallback(async () => {
     if (!user) {
       // 로그인 안 됨 -> 로그인 페이지로 이동
       router.push("/login?redirect=/project/wizard");
       return;
     }
 
+    // 백엔드에서 최신 이용권 정보 확인
+    try {
+      await fetchCredits();
+    } catch (e) {
+      console.error("이용권 조회 실패:", e);
+    }
+
+    // fetchCredits 후 최신 상태 확인
+    const currentCredits = useAuthStore.getState().credits;
+
     // 로그인 됨 + 이용권 없음 -> 결제 모달
-    if (credits <= 0) {
+    if (currentCredits <= 0) {
       setShowPaymentModal(true);
       return;
     }
 
     // 이용권 있음 -> 전체 작성 진입
     setStep("step_input");
-  }, [user, credits, router]);
+  }, [user, router, fetchCredits]);
 
   // 결제 완료 시 이용권 잔액 다시 조회 후 작성 진입 또는 생성 재시도
   const handlePaymentComplete = useCallback(
@@ -82,8 +92,9 @@ function WizardPageContent() {
       setPendingWizardData(null);
       setError(null);
 
-      // 1. 먼저 이용권 체크 (생성 전에 확인)
-      if (user && credits <= 0) {
+      // 1. 먼저 이용권 체크 (생성 전에 확인) - 최신 상태 사용
+      const currentCredits = useAuthStore.getState().credits;
+      if (user && currentCredits <= 0) {
         setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
         setPendingWizardData(data);
         setShowPaymentModal(true);
@@ -157,7 +168,7 @@ function WizardPageContent() {
         setStep("step_input");
       }
     },
-    [user, credits, searchParams, fetchCredits]
+    [user, searchParams, fetchCredits]
   );
 
   // 위자드 완료 -> 생성 시도
