@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { paymentsApi } from "@/lib/api/credits";
+import { paymentsApi, couponsApi } from "@/lib/api/credits";
+import { Coupon } from "@/types/auth";
 import styles from "./PaymentModal.module.css";
 
 interface PaymentModalProps {
@@ -9,6 +10,8 @@ interface PaymentModalProps {
   onClose: () => void;
   onPaymentComplete: (creditsAdded: number) => void;
 }
+
+const ORIGINAL_PRICE = 50000; // 정가
 
 export default function PaymentModal({
   isOpen,
@@ -21,6 +24,71 @@ export default function PaymentModal({
   );
   const [error, setError] = useState<string | null>(null);
 
+  // 쿠폰 관련 상태
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  // 가격 계산
+  const calculatePrice = () => {
+    if (appliedCoupon) {
+      // 쿠폰 적용 시: 정가에서 쿠폰 할인금액 차감
+      const discountedPrice = ORIGINAL_PRICE - appliedCoupon.discountAmount;
+      return {
+        originalPrice: ORIGINAL_PRICE,
+        discountAmount: appliedCoupon.discountAmount,
+        finalPrice: Math.max(0, discountedPrice),
+        couponApplied: true,
+      };
+    }
+    // 쿠폰 미적용: 정가 그대로
+    return {
+      originalPrice: ORIGINAL_PRICE,
+      discountAmount: 0,
+      finalPrice: ORIGINAL_PRICE,
+      couponApplied: false,
+    };
+  };
+
+  const priceInfo = calculatePrice();
+
+  // 쿠폰 적용
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("쿠폰 코드를 입력해주세요.");
+      return;
+    }
+
+    setIsValidatingCoupon(true);
+    setCouponError(null);
+
+    try {
+      const response = await couponsApi.validate(couponCode.trim());
+
+      if (response.valid && response.coupon) {
+        setAppliedCoupon(response.coupon);
+        setCouponError(null);
+      } else {
+        setCouponError(response.message || "유효하지 않은 쿠폰입니다.");
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      console.error("쿠폰 검증 오류:", err);
+      setCouponError("쿠폰 확인 중 오류가 발생했습니다.");
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  // 쿠폰 제거
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError(null);
+  };
+
   const handlePayment = async () => {
     setIsProcessing(true);
     setError(null);
@@ -28,19 +96,18 @@ export default function PaymentModal({
     try {
       // 1. 결제 요청 → paymentId 받음
       const createResponse = await paymentsApi.create({
-        productId: "credit-1", // 상품 ID: credit-1, credit-3, credit-5 중 하나
+        productId: "credit-1",
         paymentMethod: paymentMethod,
-        amount: 29900, // credit-1 가격
+        amount: priceInfo.finalPrice,
+        ...(appliedCoupon && { couponCode: appliedCoupon.code }),
       });
 
       const { paymentId } = createResponse;
 
       // 2. 데모용: 바로 결제 확인 (실제로는 PG사 결제 완료 후 호출)
-      // 실제 구현 시에는 paymentUrl로 리다이렉트 후 콜백에서 confirm 호출
       const confirmResponse = await paymentsApi.confirm(paymentId);
 
       if (confirmResponse.status === "completed") {
-        // 3. 결제 완료 → 이용권 지급됨
         onPaymentComplete(confirmResponse.creditsAdded);
       } else {
         throw new Error("결제 확인에 실패했습니다.");
@@ -78,9 +145,59 @@ export default function PaymentModal({
               <p>정부지원사업 맞춤형 사업계획서</p>
             </div>
             <div className={styles.productPrice}>
-              <span className={styles.originalPrice}>50,000원</span>
-              <span className={styles.finalPrice}>29,900원</span>
+              {priceInfo.couponApplied && (
+                <span className={styles.originalPrice}>
+                  {ORIGINAL_PRICE.toLocaleString()}원
+                </span>
+              )}
+              <span className={styles.finalPrice}>
+                {priceInfo.finalPrice.toLocaleString()}원
+              </span>
             </div>
+          </div>
+
+          {/* 쿠폰 입력 */}
+          <div className={styles.couponSection}>
+            <h4>쿠폰 코드</h4>
+            {appliedCoupon ? (
+              <div className={styles.appliedCoupon}>
+                <div className={styles.couponInfo}>
+                  <CouponIcon />
+                  <span className={styles.couponName}>
+                    {appliedCoupon.description || appliedCoupon.code}
+                  </span>
+                  <span className={styles.couponDiscount}>
+                    -{appliedCoupon.discountAmount.toLocaleString()}원
+                  </span>
+                </div>
+                <button
+                  className={styles.removeCouponButton}
+                  onClick={handleRemoveCoupon}
+                >
+                  제거
+                </button>
+              </div>
+            ) : (
+              <div className={styles.couponInput}>
+                <input
+                  type="text"
+                  placeholder="쿠폰 코드를 입력하세요"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  disabled={isValidatingCoupon}
+                />
+                <button
+                  className={styles.applyCouponButton}
+                  onClick={handleApplyCoupon}
+                  disabled={isValidatingCoupon || !couponCode.trim()}
+                >
+                  {isValidatingCoupon ? "확인 중..." : "적용"}
+                </button>
+              </div>
+            )}
+            {couponError && (
+              <p className={styles.couponError}>{couponError}</p>
+            )}
           </div>
 
           {/* 결제 수단 */}
@@ -121,15 +238,19 @@ export default function PaymentModal({
           <div className={styles.summary}>
             <div className={styles.summaryRow}>
               <span>상품 금액</span>
-              <span>50,000원</span>
+              <span>{ORIGINAL_PRICE.toLocaleString()}원</span>
             </div>
-            <div className={styles.summaryRow}>
-              <span>할인</span>
-              <span className={styles.discount}>-20,100원</span>
-            </div>
+            {priceInfo.discountAmount > 0 && (
+              <div className={styles.summaryRow}>
+                <span>쿠폰 할인</span>
+                <span className={styles.discount}>
+                  -{priceInfo.discountAmount.toLocaleString()}원
+                </span>
+              </div>
+            )}
             <div className={`${styles.summaryRow} ${styles.total}`}>
               <span>결제 금액</span>
-              <span>29,900원</span>
+              <span>{priceInfo.finalPrice.toLocaleString()}원</span>
             </div>
           </div>
 
@@ -148,7 +269,7 @@ export default function PaymentModal({
                 결제 처리 중...
               </>
             ) : (
-              <>29,900원 결제하기</>
+              <>{priceInfo.finalPrice.toLocaleString()}원 결제하기</>
             )}
           </button>
 
@@ -245,6 +366,26 @@ function SpinnerIcon() {
       strokeWidth="2"
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
+function CouponIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+      <path d="M13 5v2" />
+      <path d="M13 17v2" />
+      <path d="M13 11v2" />
     </svg>
   );
 }

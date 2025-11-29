@@ -20,6 +20,7 @@ export interface QuestionStep {
   aiPrompt: string; // AI 생성용 프롬프트
   tableHeaders?: string[]; // 테이블 형식일 경우
   outputKey: string; // output.json 매핑 키
+  budgetLimit?: number; // 예산 한도 (원 단위)
 }
 
 export const WIZARD_STEPS: QuestionStep[] = [
@@ -280,32 +281,34 @@ export const WIZARD_STEPS: QuestionStep[] = [
     section: "실현 가능성",
     title: "1단계 정부지원사업비 집행계획",
     description:
-      "1단계 정부지원사업비(20백만원 내외) 집행 계획을 작성해주세요.",
-    placeholder: "예: 인건비|개발 인력 3명×6개월|9,000,000",
+      "1단계 정부지원사업비(2백만원 이내) 집행 계획을 작성해주세요.",
+    placeholder: "예: 인건비|개발 인력 1명×1개월|800,000",
     example:
-      "인건비|개발 인력 3명×6개월|9,000,000\n재료비|서버 장비 및 개발 도구 구입|3,000,000\n외주용역비|UI/UX 디자인 외주|5,000,000\n지식재산권|특허 출원 비용|3,000,000",
+      "인건비|개발 인력 1명×1개월|800,000\n재료비|개발 도구 구입|400,000\n외주용역비|UI/UX 디자인 외주|500,000\n지식재산권|특허 출원 비용|300,000",
     minLength: 50,
     fieldType: "table",
     tableHeaders: ["비목", "산출근거", "금액(원)"],
     aiPrompt:
-      "1단계 정부지원사업비(총 2,000만원 내외) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비 등으로 구분하세요.",
+      "1단계 정부지원사업비(총 200만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비 등으로 구분하세요. 합계가 200만원을 초과하면 안됩니다.",
     outputKey: "solution.subSections[1].content.budgetPhase1",
+    budgetLimit: 2000000, // 200만원
   },
   {
     id: "budget2",
     section: "실현 가능성",
     title: "2단계 정부지원사업비 집행계획",
     description:
-      "2단계 정부지원사업비(40백만원 내외) 집행 계획을 작성해주세요.",
-    placeholder: "예: 인건비|개발 인력 5명×6개월|20,000,000",
+      "2단계 정부지원사업비(4백만원 이내) 집행 계획을 작성해주세요.",
+    placeholder: "예: 인건비|개발 인력 2명×1개월|1,600,000",
     example:
-      "인건비|개발 인력 5명×6개월|20,000,000\n재료비|클라우드 서버 비용|5,000,000\n외주용역비|보안 점검 및 부하 테스트|8,000,000\n마케팅비|온라인 광고 및 전시회 참가|7,000,000",
+      "인건비|개발 인력 2명×1개월|1,600,000\n재료비|클라우드 서버 비용|500,000\n외주용역비|보안 점검 및 부하 테스트|800,000\n마케팅비|온라인 광고|1,100,000",
     minLength: 50,
     fieldType: "table",
     tableHeaders: ["비목", "산출근거", "금액(원)"],
     aiPrompt:
-      "2단계 정부지원사업비(총 4,000만원 내외) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비, 마케팅비 등으로 구분하세요.",
+      "2단계 정부지원사업비(총 400만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비, 마케팅비 등으로 구분하세요. 합계가 400만원을 초과하면 안됩니다.",
     outputKey: "solution.subSections[1].content.budgetPhase2",
+    budgetLimit: 4000000, // 400만원
   },
 
   // ============================================================
@@ -539,6 +542,19 @@ export default function StepByStepWizard({
     }
   };
 
+  // ============================================================
+  // [MOCK DATA] - 제거 시 이 함수를 삭제하세요
+  // ============================================================
+  const fillMockData = () => {
+    const mockData: WizardData = {};
+    WIZARD_STEPS.forEach((step) => {
+      mockData[step.id] = step.example;
+    });
+    setData(mockData);
+    // 마지막 질문으로 이동
+    setCurrentStep(totalSteps - 1);
+  };
+
   // AI 힌트 모달 열기
   const openHintModal = () => {
     if (!isAuthenticated) {
@@ -627,6 +643,31 @@ export default function StepByStepWizard({
             style={{ width: `${progress}%` }}
           />
         </div>
+
+        {/* ============================================================ */}
+        {/* [MOCK DATA] - 제거 시 이 버튼을 삭제하세요 */}
+        {/* ============================================================ */}
+        <button
+          type="button"
+          onClick={fillMockData}
+          style={{
+            marginTop: "12px",
+            padding: "8px 16px",
+            background: "#10b981",
+            color: "white",
+            border: "2px dashed #34d399",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "500",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <span>📝</span>
+          예시 데이터 채우기 (개발용)
+        </button>
       </div>
 
       {/* Section Navigation */}
@@ -679,7 +720,7 @@ export default function StepByStepWizard({
           >
             <SparklesIcon />
             AI 힌트로 작성하기
-            <span className={styles.hintCount}>({aiHintsRemaining}/10)</span>
+            <span className={styles.hintCount}>({aiHintsRemaining}/20)</span>
           </button>
         )}
 
@@ -725,6 +766,7 @@ export default function StepByStepWizard({
               headers={currentQuestion.tableHeaders || []}
               placeholder={currentQuestion.placeholder}
               error={!!error}
+              budgetLimit={currentQuestion.budgetLimit}
             />
           )}
 
@@ -942,12 +984,14 @@ function TableInput({
   headers,
   placeholder,
   error,
+  budgetLimit,
 }: {
   value: string;
   onChange: (val: string) => void;
   headers: string[];
   placeholder: string;
   error: boolean;
+  budgetLimit?: number;
 }) {
   // 줄바꿈으로 행 분리, | 로 열 분리
   const rows = value
@@ -960,6 +1004,20 @@ function TableInput({
         return cells.slice(0, headers.length);
       })
     : [Array(headers.length).fill("")];
+
+  // 예산 합계 계산 (마지막 열이 금액인 경우)
+  const calculateTotal = () => {
+    if (!budgetLimit) return 0;
+    return rows.reduce((sum, row) => {
+      const lastCell = row[row.length - 1] || "";
+      // 숫자만 추출 (콤마, 원 등 제거)
+      const amount = parseInt(lastCell.replace(/[^0-9]/g, ""), 10);
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+  };
+
+  const total = calculateTotal();
+  const isOverBudget = budgetLimit && total > budgetLimit;
 
   const handleChange = (rowIndex: number, colIndex: number, val: string) => {
     const newRows = [...rows];
@@ -980,6 +1038,11 @@ function TableInput({
     }
     const newRows = rows.filter((_, i) => i !== index);
     onChange(newRows.map((r) => r.join("|")).join("\n"));
+  };
+
+  // 금액 포맷팅
+  const formatAmount = (amount: number) => {
+    return amount.toLocaleString("ko-KR") + "원";
   };
 
   return (
@@ -1024,6 +1087,47 @@ function TableInput({
       <button className={styles.addButton} onClick={handleAddRow}>
         + 행 추가하기
       </button>
+
+      {/* 예산 합계 표시 */}
+      {budgetLimit && (
+        <div
+          style={{
+            marginTop: "12px",
+            padding: "12px 16px",
+            backgroundColor: isOverBudget ? "#fef2f2" : "#f0fdf4",
+            border: `1px solid ${isOverBudget ? "#fecaca" : "#bbf7d0"}`,
+            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <span style={{ fontWeight: 500 }}>합계: </span>
+            <span
+              style={{
+                fontWeight: 700,
+                color: isOverBudget ? "#dc2626" : "#16a34a",
+              }}
+            >
+              {formatAmount(total)}
+            </span>
+            <span style={{ color: "#6b7280", marginLeft: "8px" }}>
+              / {formatAmount(budgetLimit)}
+            </span>
+          </div>
+          {isOverBudget && (
+            <span style={{ color: "#dc2626", fontWeight: 500, fontSize: "14px" }}>
+              ⚠️ 예산 한도 초과
+            </span>
+          )}
+          {!isOverBudget && total > 0 && (
+            <span style={{ color: "#16a34a", fontWeight: 500, fontSize: "14px" }}>
+              ✓ 예산 범위 내
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

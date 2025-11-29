@@ -1,5 +1,6 @@
 import axiosInstance from "../axios";
 import { API_ENDPOINTS } from "@/constants/api";
+import { Coupon, CouponValidateResponse, CouponCreateRequest } from "@/types/auth";
 
 // 이용권 잔액 응답
 export interface CreditsBalanceResponse {
@@ -30,6 +31,7 @@ export interface PaymentCreateRequest {
   productId: string;
   paymentMethod: string;
   amount: number;
+  couponCode?: string; // 쿠폰 코드 (선택)
 }
 
 // 결제 요청 응답
@@ -135,5 +137,39 @@ export const paymentsApi = {
       params,
     });
     return response.data;
+  },
+};
+
+// 쿠폰 API
+export const couponsApi = {
+  // 쿠폰 검증
+  validate: async (code: string): Promise<CouponValidateResponse> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.COUPONS.VALIDATE, {
+      code,
+    });
+    return response.data;
+  },
+
+  // 쿠폰 목록 조회 (어드민용)
+  list: async (): Promise<{ data: Coupon[] }> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.COUPONS.LIST);
+    return response.data;
+  },
+
+  // 쿠폰 생성 (어드민용)
+  create: async (data: CouponCreateRequest): Promise<Coupon> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.COUPONS.CREATE, data);
+    return response.data;
+  },
+
+  // 쿠폰 수정 (어드민용)
+  update: async (id: string, data: Partial<CouponCreateRequest & { isActive: boolean }>): Promise<Coupon> => {
+    const response = await axiosInstance.patch(API_ENDPOINTS.COUPONS.UPDATE(id), data);
+    return response.data;
+  },
+
+  // 쿠폰 삭제 (어드민용)
+  delete: async (id: string): Promise<void> => {
+    await axiosInstance.delete(API_ENDPOINTS.COUPONS.DELETE(id));
   },
 };

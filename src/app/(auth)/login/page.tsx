@@ -2,17 +2,28 @@
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authApi } from "@/lib/api/auth";
+import { useAuthStore } from "@/store/authStore";
 import styles from "./page.module.css";
 
 function LoginContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const mockLogin = useAuthStore((state) => state.mockLogin);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 로그인 후 리다이렉트할 경로
   const redirectPath = searchParams.get("redirect") || "/";
+
+  // ============================================================
+  // [MOCK LOGIN] - 제거 시 이 함수를 삭제하세요
+  // ============================================================
+  const handleMockLogin = () => {
+    mockLogin();
+    router.push(redirectPath);
+  };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -88,6 +99,23 @@ function LoginContent() {
                 Google로 계속하기
               </>
             )}
+          </button>
+
+          {/* ============================================================ */}
+          {/* [MOCK LOGIN] - 제거 시 이 버튼을 삭제하세요 */}
+          {/* ============================================================ */}
+          <button
+            type="button"
+            className={styles.googleButton}
+            onClick={handleMockLogin}
+            style={{
+              marginTop: "12px",
+              background: "#6366f1",
+              border: "2px dashed #818cf8",
+            }}
+          >
+            <span style={{ marginRight: "8px" }}>🧪</span>
+            개발용 테스트 로그인
           </button>
         </div>
 

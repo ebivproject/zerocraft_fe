@@ -15,6 +15,16 @@ export const API_ENDPOINTS = {
     CONFIRM: (id: string) => `/api/payments/${id}/confirm`,
     LIST: "/api/payments",
   },
+  COUPONS: {
+    VALIDATE: "/api/coupons/validate",
+    LIST: "/api/coupons",
+    CREATE: "/api/coupons",
+    UPDATE: (id: string) => `/api/coupons/${id}`,
+    DELETE: (id: string) => `/api/coupons/${id}`,
+  },
+  ADMIN: {
+    COUPONS: "/api/admin/coupons",
+  },
   BUSINESS_PLANS: {
     LIST: "/api/business-plans",
     DETAIL: (id: string) => `/api/business-plans/${id}`,

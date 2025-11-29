@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // 인증이 필요한 경로
-const protectedRoutes = ["/mypage", "/project"];
+const protectedRoutes = ["/mypage", "/project", "/admin"];
 
 // 인증된 사용자가 접근하면 안되는 경로
 const authRoutes = ["/login"];
@@ -31,5 +31,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/mypage/:path*", "/project/:path*", "/login"],
+  matcher: ["/mypage/:path*", "/project/:path*", "/admin/:path*", "/login"],
 };

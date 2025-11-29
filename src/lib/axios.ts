@@ -30,6 +30,16 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // 인증 에러 처리
       if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token");
+
+        // ============================================================
+        // [MOCK LOGIN] - Mock 토큰이면 로그아웃하지 않음
+        // ============================================================
+        if (token === "mock-token-for-development") {
+          console.log("[MOCK] 401 에러 무시 (Mock 모드)");
+          return Promise.reject(error);
+        }
+
         localStorage.removeItem("token");
         window.location.href = "/login";
       }

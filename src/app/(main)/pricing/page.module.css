@@ -1,0 +1,276 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--foreground-muted);
+}
+
+.error {
+  padding: 16px;
+  margin-bottom: 24px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Plans Grid */
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 64px;
+}
+
+/* Plan Card */
+.planCard {
+  position: relative;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.planCard:hover {
+  border-color: var(--primary-300);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.planCard.highlighted {
+  border-color: var(--primary-500);
+  background: linear-gradient(
+    180deg,
+    rgba(91, 124, 250, 0.05) 0%,
+    var(--card-bg) 100%
+  );
+}
+
+.dark .planCard.highlighted {
+  background: linear-gradient(
+    180deg,
+    rgba(91, 124, 250, 0.1) 0%,
+    var(--card-bg) 100%
+  );
+}
+
+.badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(91, 124, 250, 0.35);
+}
+
+.planHeader {
+  margin-bottom: 24px;
+}
+
+.planName {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.planDescription {
+  font-size: 14px;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+}
+
+/* Price Section */
+.priceSection {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.originalPrice {
+  display: inline-block;
+  font-size: 16px;
+  color: var(--foreground-muted);
+  text-decoration: line-through;
+  margin-bottom: 4px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.priceValue {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -1px;
+}
+
+.priceUnit {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--foreground-muted);
+}
+
+/* Features List */
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+  flex: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 15px;
+  color: var(--foreground);
+}
+
+.featureItem svg {
+  flex-shrink: 0;
+  color: #10b981;
+  margin-top: 2px;
+}
+
+/* Select Button */
+.selectButton {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--background-secondary);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectButton:hover:not(:disabled) {
+  background: var(--background);
+  border-color: var(--foreground-muted);
+}
+
+.selectButton.primaryButton {
+  color: white;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  border: none;
+  box-shadow: 0 4px 14px rgba(91, 124, 250, 0.35);
+}
+
+.selectButton.primaryButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(91, 124, 250, 0.45);
+}
+
+.selectButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Info Section */
+.infoSection {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+}
+
+.infoSection h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 24px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faqItem {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.faqItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.faqItem h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.faqItem p {
+  font-size: 14px;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .plansGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .planCard.highlighted {
+    order: -1;
+  }
+
+  .priceValue {
+    font-size: 36px;
+  }
+
+  .infoSection {
+    padding: 24px;
+  }
+}
