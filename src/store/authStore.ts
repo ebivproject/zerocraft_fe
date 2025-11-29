@@ -103,12 +103,15 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const user = await authApi.getMe();
+          console.log("[fetchMe] API 응답:", user);
+          console.log("[fetchMe] role:", user?.role);
           set({
             user,
             isAuthenticated: true,
             credits: user.credits || 0,
             isLoading: false,
           });
+          console.log("[fetchMe] 저장 후 user:", get().user);
         } catch (error) {
           console.error("사용자 정보 조회 실패:", error);
           // 토큰이 유효하지 않으면 로그아웃 처리

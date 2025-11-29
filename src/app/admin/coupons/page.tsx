@@ -9,11 +9,12 @@ import styles from "./page.module.css";
 
 export default function AdminCouponsPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  // useAuthStore는 getState()로만 사용
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   // 쿠폰 생성 폼 상태
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -31,22 +32,55 @@ export default function AdminCouponsPage() {
     setIsHydrated(true);
   }, []);
 
-  // 권한 체크 (hydration 완료 후)
+  // 권한 체크 (hydration 완료 후, API에서 최신 정보 확인)
   useEffect(() => {
     if (!isHydrated) return;
 
-    if (!isAuthenticated) {
-      router.push("/login?redirect=/admin/coupons");
-      return;
-    }
+    const checkAuth = async () => {
+      console.log("[Admin] 권한 체크 시작");
+      console.log("[Admin] token:", localStorage.getItem("token"));
 
-    if (user?.role !== "admin") {
-      router.push("/");
-      return;
-    }
+      // 토큰이 없으면 로그인 페이지로
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("[Admin] 토큰 없음, 로그인 페이지로 이동");
+        router.push("/login?redirect=/admin/coupons");
+        return;
+      }
 
-    fetchCoupons();
-  }, [isHydrated, isAuthenticated, user, router]);
+      // API에서 최신 사용자 정보 가져오기
+      try {
+        const { fetchMe } = useAuthStore.getState();
+        await fetchMe();
+        console.log("[Admin] fetchMe 완료");
+      } catch (e) {
+        console.error("[Admin] fetchMe 실패:", e);
+      }
+
+      // 최신 상태에서 role 확인
+      const currentUser = useAuthStore.getState().user;
+      console.log("[Admin] 최종 사용자 정보:", currentUser);
+      console.log("[Admin] role:", currentUser?.role);
+
+      if (!currentUser) {
+        console.log("[Admin] 사용자 정보 없음, 로그인 페이지로 이동");
+        router.push("/login?redirect=/admin/coupons");
+        return;
+      }
+
+      if (currentUser.role !== "admin") {
+        console.log("[Admin] 권한 없음 (role:", currentUser.role, "), 홈으로 이동");
+        router.push("/");
+        return;
+      }
+
+      console.log("[Admin] 권한 확인 완료, 페이지 표시");
+      setIsAuthChecked(true);
+      fetchCoupons();
+    };
+
+    checkAuth();
+  }, [isHydrated, router]);
 
   const fetchCoupons = async () => {
     try {
@@ -126,8 +160,8 @@ export default function AdminCouponsPage() {
     setFormData((prev) => ({ ...prev, code }));
   };
 
-  // Hydration 대기 또는 권한이 없으면 로딩 표시
-  if (!isHydrated || !isAuthenticated || user?.role !== "admin") {
+  // 인증 확인 전까지 로딩 표시
+  if (!isAuthChecked) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>권한을 확인하는 중...</div>
