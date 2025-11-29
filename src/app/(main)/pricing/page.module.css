@@ -89,6 +89,11 @@
   box-shadow: 0 4px 12px rgba(91, 124, 250, 0.35);
 }
 
+.badgeSecondary {
+  background: var(--foreground-muted);
+  box-shadow: none;
+}
+
 .planHeader {
   margin-bottom: 24px;
 }
@@ -197,6 +202,13 @@
 .selectButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.selectButton.disabledButton {
+  background: var(--background-secondary);
+  color: var(--foreground-muted);
+  border: 2px solid var(--border);
+  box-shadow: none;
 }
 
 /* Info Section */

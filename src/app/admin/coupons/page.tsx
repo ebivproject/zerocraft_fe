@@ -13,6 +13,7 @@ export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // 쿠폰 생성 폼 상태
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -25,8 +26,15 @@ export default function AdminCouponsPage() {
   });
   const [isCreating, setIsCreating] = useState(false);
 
-  // 권한 체크
+  // Hydration 완료 대기
   useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // 권한 체크 (hydration 완료 후)
+  useEffect(() => {
+    if (!isHydrated) return;
+
     if (!isAuthenticated) {
       router.push("/login?redirect=/admin/coupons");
       return;
@@ -38,7 +46,7 @@ export default function AdminCouponsPage() {
     }
 
     fetchCoupons();
-  }, [isAuthenticated, user, router]);
+  }, [isHydrated, isAuthenticated, user, router]);
 
   const fetchCoupons = async () => {
     try {
@@ -118,8 +126,8 @@ export default function AdminCouponsPage() {
     setFormData((prev) => ({ ...prev, code }));
   };
 
-  // 권한이 없으면 로딩 표시
-  if (!isAuthenticated || user?.role !== "admin") {
+  // Hydration 대기 또는 권한이 없으면 로딩 표시
+  if (!isHydrated || !isAuthenticated || user?.role !== "admin") {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>권한을 확인하는 중...</div>

@@ -30,6 +30,8 @@ const PLANS: Plan[] = [
       "AI 힌트 20회 제공",
       "쿠폰 사용 가능",
     ],
+    badge: "추천",
+    highlight: true,
   },
   {
     id: "expert-consultation",
@@ -43,8 +45,7 @@ const PLANS: Plan[] = [
       "이용권 1매 무료 증정",
       "맞춤형 사업 분석",
     ],
-    badge: "추천",
-    highlight: true,
+    badge: "준비중",
   },
 ];
 
@@ -60,8 +61,7 @@ export default function PricingPage() {
     }
 
     if (plan.id === "expert-consultation") {
-      // 전문가 상담은 별도 문의 페이지나 카카오톡 등으로 연결
-      window.open("https://open.kakao.com/o/sZEROCRAFT", "_blank");
+      // 전문가 상담은 준비중
       return;
     }
 
@@ -72,7 +72,8 @@ export default function PricingPage() {
   const handlePaymentComplete = (creditsAdded: number) => {
     addCredits(creditsAdded);
     setShowPaymentModal(false);
-    router.push("/mypage?payment=success");
+    // 결제 완료 후 AI 사업계획서 페이지로 이동
+    router.push("/project/wizard");
   };
 
   return (
@@ -90,7 +91,11 @@ export default function PricingPage() {
             key={plan.id}
             className={`${styles.planCard} ${plan.highlight ? styles.highlighted : ""}`}
           >
-            {plan.badge && <div className={styles.badge}>{plan.badge}</div>}
+            {plan.badge && (
+              <div className={`${styles.badge} ${plan.badge === "준비중" ? styles.badgeSecondary : ""}`}>
+                {plan.badge}
+              </div>
+            )}
 
             <div className={styles.planHeader}>
               <h2 className={styles.planName}>{plan.name}</h2>
@@ -121,10 +126,11 @@ export default function PricingPage() {
             </ul>
 
             <button
-              className={`${styles.selectButton} ${plan.highlight ? styles.primaryButton : ""}`}
+              className={`${styles.selectButton} ${plan.highlight ? styles.primaryButton : ""} ${plan.id === "expert-consultation" ? styles.disabledButton : ""}`}
               onClick={() => handleSelectPlan(plan)}
+              disabled={plan.id === "expert-consultation"}
             >
-              {plan.id === "expert-consultation" ? "상담 신청하기" : "구매하기"}
+              {plan.id === "expert-consultation" ? "준비중" : "구매하기"}
             </button>
           </div>
         ))}
