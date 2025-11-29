@@ -4,9 +4,6 @@ import type { NextRequest } from "next/server";
 // 인증이 필요한 경로
 const protectedRoutes = ["/mypage", "/project", "/admin"];
 
-// 인증된 사용자가 접근하면 안되는 경로
-const authRoutes = ["/login"];
-
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
@@ -21,15 +18,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 로그인된 상태에서 로그인 페이지 접근
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
+  // 로그인 페이지는 항상 접근 허용 (클라이언트에서 처리)
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/mypage/:path*", "/project/:path*", "/admin/:path*", "/login"],
+  matcher: ["/mypage/:path*", "/project/:path*", "/admin/:path*"],
 };
