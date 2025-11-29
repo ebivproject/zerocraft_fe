@@ -30,6 +30,8 @@ axiosInstance.interceptors.response.use(
       // 인증 에러 처리
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
+        // 쿠키도 삭제 (middleware에서 사용하는 토큰)
+        document.cookie = "token=; path=/; max-age=0";
         window.location.href = "/login";
       }
     }

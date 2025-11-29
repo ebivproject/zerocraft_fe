@@ -41,6 +41,8 @@ function CallbackContent() {
 
         // 토큰 저장
         localStorage.setItem("token", response.token);
+        // 쿠키에도 토큰 저장 (middleware에서 사용)
+        document.cookie = `token=${response.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7일
 
         // 사용자 정보 저장
         setUser(response.user);
