@@ -15,21 +15,25 @@ function LoginContent() {
   const redirectPath = searchParams.get("redirect") || "/";
 
   const handleGoogleLogin = async () => {
+    console.log("[Login] Google 로그인 버튼 클릭");
     setIsLoading(true);
     setError(null);
 
     try {
+      console.log("[Login] API 요청 시작...");
       const response = await authApi.getGoogleLoginUrl();
-      const url = new URL(response.url);
+      console.log("[Login] API 응답:", response);
 
-      // URLSearchParams가 자동으로 인코딩하므로 redirectPath를 그대로 넘긴다.
+      const url = new URL(response.url);
       url.searchParams.set("state", redirectPath);
 
+      console.log("[Login] 리다이렉트:", url.toString());
       window.location.href = url.toString();
-    } catch (err) {
-      console.error("Google 로그인 URL 요청 실패:", err);
+    } catch (err: unknown) {
+      console.error("[Login] Google 로그인 URL 요청 실패:", err);
+      const errorMessage = err instanceof Error ? err.message : "알 수 없는 오류";
       setError(
-        "로그인 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+        `로그인 서비스에 연결할 수 없습니다. (${errorMessage})`
       );
       setIsLoading(false);
     }
