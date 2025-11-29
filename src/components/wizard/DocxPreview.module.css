@@ -1,0 +1,321 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 히어로 섹션 */
+.hero {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.heroIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.heroTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+
+.heroDesc {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 3rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.heroButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.feature svg {
+  color: #667eea;
+}
+
+/* 샘플 섹션 */
+.sampleSection {
+  margin-bottom: 2rem;
+}
+
+.sampleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.sampleDocument {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.documentHeader {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: white;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+
+.sampleBadge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.documentTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.documentContent {
+  padding: 2rem;
+  max-height: 600px;
+  overflow-y: auto;
+  line-height: 1.8;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.documentContent h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.documentContent h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.documentContent h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #444;
+  margin: 1rem 0 0.5rem;
+}
+
+.documentContent p {
+  margin-bottom: 1rem;
+}
+
+.documentContent ul,
+.documentContent ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.documentContent li {
+  margin-bottom: 0.5rem;
+}
+
+.documentContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.documentContent th,
+.documentContent td {
+  border: 1px solid #ddd;
+  padding: 0.6rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.documentContent th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+/* 하단 CTA 섹션 */
+.bottomCta {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.bottomCtaText {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.bottomCtaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bottomCtaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 로딩/에러 상태 */
+.loadingWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+  color: #666;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid #f0f0f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+  color: #dc3545;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .heroIcon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .heroIcon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .heroTitle {
+    font-size: 1.6rem;
+  }
+
+  .heroDesc {
+    font-size: 1rem;
+  }
+
+  .heroButton {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .features {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .documentContent {
+    padding: 1.5rem;
+    max-height: 450px;
+  }
+
+  .bottomCta {
+    padding: 1.5rem;
+  }
+
+  .bottomCtaButton {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+  }
+}

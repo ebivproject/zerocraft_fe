@@ -9,50 +9,29 @@ import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
 import StepByStepWizard, {
   WizardData,
 } from "@/components/wizard/StepByStepWizard";
-import SimpleInputForm, {
-  SimpleInputData,
-} from "@/components/wizard/SimpleInputForm";
-import PreviewDocument from "@/components/wizard/PreviewDocument";
+import DocxPreview from "@/components/wizard/DocxPreview";
 import PaymentModal from "@/components/wizard/PaymentModal";
 import styles from "./page.module.css";
 
-// 흐름: 랜딩 -> 간단입력 -> 미리보기 -> (로그인/결제) -> 전체작성 -> 생성중 -> 완료
-type WizardStep =
-  | "landing"
-  | "simple_input"
-  | "preview"
-  | "step_input"
-  | "generating"
-  | "complete";
+// 흐름: 샘플미리보기 -> (로그인/결제) -> 전체작성 -> 생성중 -> 완료
+type WizardStep = "sample_preview" | "step_input" | "generating" | "complete";
 
 function WizardPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, credits, useCredit, addCredits, fetchCredits } = useAuthStore();
+  const { user, credits, addCredits, fetchCredits } = useAuthStore();
 
-  const [step, setStep] = useState<WizardStep>("landing");
-  const [simpleData, setSimpleData] = useState<SimpleInputData | null>(null);
+  const [step, setStep] = useState<WizardStep>("sample_preview");
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [result, setResult] = useState<BusinessPlanOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [pendingWizardData, setPendingWizardData] = useState<WizardData | null>(
     null
-  ); // 결제 대기 중인 데이터
+  );
 
-  // 랜딩 -> 간단 입력 (누구나 가능)
-  const handleStart = useCallback(() => {
-    setStep("simple_input");
-  }, []);
-
-  // 간단 입력 완료 -> 미리보기
-  const handleSimpleInputSubmit = useCallback((data: SimpleInputData) => {
-    setSimpleData(data);
-    setStep("preview");
-  }, []);
-
-  // 미리보기에서 전체 보고서 잠금 해제 요청
-  const handleUnlockFullReport = useCallback(() => {
+  // 결제/시작 버튼 클릭 핸들러
+  const handlePaymentClick = useCallback(() => {
     if (!user) {
       // 로그인 안 됨 -> 로그인 페이지로 이동
       router.push("/login?redirect=/project/wizard");
@@ -85,29 +64,28 @@ function WizardPageContent() {
 
       // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
       if (pendingWizardData) {
-        // 약간의 딜레이 후 생성 재시도 (상태 업데이트 반영을 위해)
         setTimeout(() => {
           generateBusinessPlan(pendingWizardData);
         }, 100);
       } else {
-        // 없으면 기존 작성 단계로 진입
+        // 없으면 작성 단계로 진입
         setStep("step_input");
       }
     },
     [addCredits, fetchCredits, pendingWizardData]
   );
 
-  // 사업계획서 생성 함수 (재사용 가능하도록 분리)
+  // 사업계획서 생성 함수
   const generateBusinessPlan = useCallback(
     async (data: WizardData) => {
       setWizardData(data);
-      setPendingWizardData(null); // 대기 데이터 초기화
+      setPendingWizardData(null);
       setError(null);
 
       // 1. 먼저 이용권 체크 (생성 전에 확인)
       if (user && credits <= 0) {
         setError("이용권이 부족합니다. 결제 후 다시 시도해주세요.");
-        setPendingWizardData(data); // 데이터 저장
+        setPendingWizardData(data);
         setShowPaymentModal(true);
         return;
       }
@@ -151,7 +129,6 @@ function WizardPageContent() {
             console.log("사업계획서 저장 완료:", savedPlan.id);
           } catch (saveError) {
             console.error("사업계획서 저장 실패:", saveError);
-            // 저장 실패해도 결과는 보여주되 경고만 표시
           }
         }
 
@@ -159,11 +136,9 @@ function WizardPageContent() {
         if (user) {
           try {
             await creditsApi.use("사업계획서 생성", savedPlanId);
-            // 로컬 상태도 업데이트
             await fetchCredits();
           } catch (creditError) {
             console.error("이용권 차감 실패:", creditError);
-            // 이미 생성은 완료되었으므로 결과는 보여줌 (차감 실패 경고만)
             console.warn(
               "이용권 차감에 실패했지만 사업계획서는 생성되었습니다."
             );
@@ -206,8 +181,7 @@ function WizardPageContent() {
 
   // 처음으로 돌아가기
   const handleReset = useCallback(() => {
-    setStep("landing");
-    setSimpleData(null);
+    setStep("sample_preview");
     setWizardData({});
     setResult(null);
     setError(null);
@@ -223,12 +197,8 @@ function WizardPageContent() {
   // 서브타이틀 텍스트
   const getSubtitle = () => {
     switch (step) {
-      case "landing":
-        return "예비창업패키지 사업계획서를 AI와 함께 만들어보세요.";
-      case "simple_input":
-        return "간단한 아이디어만 입력하면 AI가 초안을 만들어드립니다.";
-      case "preview":
-        return "AI가 생성한 사업계획서 초안입니다. 전체 보고서를 확인해보세요!";
+      case "sample_preview":
+        return "AI가 작성한 사업계획서 샘플을 확인해보세요.";
       case "step_input":
         return "질문에 답변하며 사업계획서를 완성하세요.";
       case "generating":
@@ -264,80 +234,12 @@ function WizardPageContent() {
 
       {/* 콘텐츠 영역 */}
       <div className={styles.content}>
-        {/* Step 0: 랜딩 */}
-        {step === "landing" && (
-          <div className={styles.landingSection}>
-            <div className={styles.landingContent}>
-              <div className={styles.landingIcon}>📝</div>
-              <h2>예비창업패키지 사업계획서 작성</h2>
-              <p>
-                간단한 아이디어만 입력하면 AI가 사업계획서 초안을 무료로
-                만들어드립니다.
-                <br />
-                마음에 드시면 전체 사업계획서를 받아보세요!
-              </p>
-
-              <div className={styles.featureList}>
-                <div className={styles.featureItem}>
-                  <span className={styles.featureIcon}>✨</span>
-                  <span>3가지 정보만 입력하면 무료 초안 제공</span>
-                </div>
-                <div className={styles.featureItem}>
-                  <span className={styles.featureIcon}>🤖</span>
-                  <span>AI가 전문적인 사업계획서 작성</span>
-                </div>
-                <div className={styles.featureItem}>
-                  <span className={styles.featureIcon}>📄</span>
-                  <span>Word 파일로 바로 다운로드</span>
-                </div>
-              </div>
-
-              <button className={styles.startButton} onClick={handleStart}>
-                무료로 초안 만들어보기 ✨
-              </button>
-
-              <p className={styles.loginHint}>
-                로그인 없이도 무료 초안을 확인할 수 있어요!
-              </p>
-            </div>
-          </div>
+        {/* 샘플 미리보기 */}
+        {step === "sample_preview" && (
+          <DocxPreview onPaymentClick={handlePaymentClick} />
         )}
 
-        {/* Step 1: 간단 입력 */}
-        {step === "simple_input" && (
-          <SimpleInputForm onSubmit={handleSimpleInputSubmit} />
-        )}
-
-        {/* Step 2: 미리보기 */}
-        {step === "preview" && (
-          <div className={styles.previewWrapper}>
-            <PreviewDocument
-              data={simpleData || undefined}
-              isLocked={true}
-              onUnlock={handleUnlockFullReport}
-            />
-            <div className={styles.previewActions}>
-              <button
-                className={styles.unlockButton}
-                onClick={handleUnlockFullReport}
-              >
-                {!user
-                  ? "로그인하고 전체 보고서 받기 🔓"
-                  : credits > 0
-                  ? "전체 사업계획서 작성하기 📄"
-                  : "이용권 구매하고 전체 보고서 받기 💳"}
-              </button>
-              <button
-                className={styles.backButton}
-                onClick={() => setStep("simple_input")}
-              >
-                ← 다시 입력하기
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: 전체 단계별 입력 */}
+        {/* 전체 단계별 입력 */}
         {step === "step_input" && (
           <StepByStepWizard
             onComplete={handleWizardComplete}
@@ -345,7 +247,7 @@ function WizardPageContent() {
           />
         )}
 
-        {/* Step 2: 생성 중 */}
+        {/* 생성 중 */}
         {step === "generating" && (
           <div className={styles.generatingSection}>
             <div className={styles.spinner} />
@@ -357,7 +259,7 @@ function WizardPageContent() {
           </div>
         )}
 
-        {/* Step 3: 완료 */}
+        {/* 완료 */}
         {step === "complete" && result && (
           <div className={styles.completeSection}>
             <div className={styles.successIcon}>✓</div>
@@ -369,42 +271,42 @@ function WizardPageContent() {
                 className={styles.downloadButton}
                 onClick={handleDownload}
               >
-                📥 Word 파일 다운로드
+                Word 파일 다운로드
               </button>
               <button className={styles.editButton} onClick={handleEdit}>
-                ✏️ 내용 수정하기
+                내용 수정하기
               </button>
               <button className={styles.resetButton} onClick={handleReset}>
-                🔄 새로 작성하기
+                새로 작성하기
               </button>
             </div>
 
             {/* 생성된 문서 미리보기 */}
             <div className={styles.resultPreview}>
-              <h3>📋 문서 구성</h3>
+              <h3>문서 구성</h3>
               <ul className={styles.sectionList}>
                 <li>
-                  <span className={styles.sectionIcon}>📌</span>
+                  <span className={styles.sectionIcon}>1</span>
                   {result.sections.generalStatus.title}
                 </li>
                 <li>
-                  <span className={styles.sectionIcon}>📝</span>
+                  <span className={styles.sectionIcon}>2</span>
                   {result.sections.summary.title}
                 </li>
                 <li>
-                  <span className={styles.sectionIcon}>🔍</span>
+                  <span className={styles.sectionIcon}>3</span>
                   {result.sections.problem.title}
                 </li>
                 <li>
-                  <span className={styles.sectionIcon}>💡</span>
+                  <span className={styles.sectionIcon}>4</span>
                   {result.sections.solution.title}
                 </li>
                 <li>
-                  <span className={styles.sectionIcon}>📈</span>
+                  <span className={styles.sectionIcon}>5</span>
                   {result.sections.scaleup.title}
                 </li>
                 <li>
-                  <span className={styles.sectionIcon}>👥</span>
+                  <span className={styles.sectionIcon}>6</span>
                   {result.sections.team.title}
                 </li>
               </ul>
