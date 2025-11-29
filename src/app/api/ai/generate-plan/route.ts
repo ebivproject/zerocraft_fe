@@ -283,14 +283,25 @@ ${inputSummary}
 1. 개발 목표는 SMART 원칙에 맞게 3-5개로 정리
 2. 차별화 전략은 경쟁사 대비 우위점을 명확히
 3. 일정표와 예산은 현실적이고 구체적으로
+4. 로드맵 차트 데이터는 월 단위로 12개월치 제공 (각 단계별 시작월, 종료월 포함)
 
 다음 JSON 형식으로만 응답하세요:
 {
   "developmentGoals": ["목표1", "목표2", "목표3"],
   "differentiation": "차별화 전략 설명 (3-5문장)",
   "scheduleTable": [
-    {"step": "1단계", "task": "과업명", "period": "2025.01-03", "detail": "세부내용"}
+    {"step": "1단계", "task": "과업명", "period": "2025.01-03", "detail": "세부내용", "startMonth": 1, "endMonth": 3}
   ],
+  "roadmapChart": {
+    "title": "사업 추진 로드맵",
+    "totalMonths": 12,
+    "phases": [
+      {"name": "1단계: 기획", "startMonth": 1, "endMonth": 3, "color": "blue"},
+      {"name": "2단계: 개발", "startMonth": 3, "endMonth": 8, "color": "green"},
+      {"name": "3단계: 테스트", "startMonth": 8, "endMonth": 10, "color": "orange"},
+      {"name": "4단계: 출시", "startMonth": 10, "endMonth": 12, "color": "purple"}
+    ]
+  },
   "budgetPhase1": {
     "items": [{"category": "재료비", "detail": "세부내역", "amount": "5,000,000"}],
     "total": "10,000,000"
@@ -298,6 +309,16 @@ ${inputSummary}
   "budgetPhase2": {
     "items": [{"category": "외주용역비", "detail": "세부내역", "amount": "5,000,000"}],
     "total": "10,000,000"
+  },
+  "budgetChart": {
+    "title": "예산 배분 현황",
+    "phase1": [
+      {"category": "재료비", "amount": 5000000},
+      {"category": "인건비", "amount": 3000000}
+    ],
+    "phase2": [
+      {"category": "외주용역비", "amount": 5000000}
+    ]
   }
 }`;
 
@@ -317,6 +338,7 @@ ${inputSummary}
               differentiation:
                 parsed.differentiation || data.differentiation || "",
               scheduleTable: parsed.scheduleTable || [],
+              roadmapChart: parsed.roadmapChart || null,
             },
           },
           {
@@ -324,6 +346,7 @@ ${inputSummary}
             content: {
               budgetPhase1: parsed.budgetPhase1 || { items: [], total: "0" },
               budgetPhase2: parsed.budgetPhase2 || { items: [], total: "0" },
+              budgetChart: parsed.budgetChart || null,
             },
           },
         ],
@@ -345,6 +368,7 @@ ${inputSummary}
             .filter((g: string) => g.trim()),
           differentiation: data.differentiation || "",
           scheduleTable: [],
+          roadmapChart: null,
         },
       },
       {
@@ -352,6 +376,7 @@ ${inputSummary}
         content: {
           budgetPhase1: { items: [], total: "0" },
           budgetPhase2: { items: [], total: "0" },
+          budgetChart: null,
         },
       },
     ],
@@ -379,10 +404,21 @@ ESG 전략: ${data.esgStrategy || "없음"}
 2. 시장 진입 전략은 타겟, 채널, 초기 목표를 구체적으로
 3. 비즈니스 모델은 수익원, 가격정책, 매출전망 포함
 4. ESG는 환경/사회/지배구조 각각 1-2문장
+5. 3년간 매출 전망 차트 데이터를 연도별/분기별로 제공
+6. 경쟁사 비교 차트 데이터를 항목별 점수로 제공
 
 다음 JSON 형식으로만 응답하세요:
 {
   "competitorAnalysis": ["경쟁사1 분석", "경쟁사2 분석"],
+  "competitorChart": {
+    "title": "경쟁사 비교 분석",
+    "categories": ["기술력", "가격경쟁력", "브랜드인지도", "서비스품질", "시장점유율"],
+    "competitors": [
+      {"name": "자사", "scores": [85, 90, 60, 85, 30]},
+      {"name": "경쟁사A", "scores": [70, 60, 90, 70, 40]},
+      {"name": "경쟁사B", "scores": [60, 70, 80, 65, 30]}
+    ]
+  },
   "marketEntryStrategy": {
     "target": "타겟 고객층",
     "channel": "온라인 유통 채널",
@@ -394,6 +430,15 @@ ESG 전략: ${data.esgStrategy || "없음"}
     "pricing": "가격 정책",
     "financialProjection": "3년 매출 전망",
     "breakEvenPoint": "손익분기점 예상"
+  },
+  "revenueChart": {
+    "title": "3년간 매출 전망",
+    "unit": "백만원",
+    "data": [
+      {"period": "1차년도", "revenue": 100, "cost": 150, "profit": -50},
+      {"period": "2차년도", "revenue": 300, "cost": 250, "profit": 50},
+      {"period": "3차년도", "revenue": 600, "cost": 400, "profit": 200}
+    ]
   },
   "esgStrategy": {
     "environment": "환경 전략",
@@ -415,6 +460,7 @@ ESG 전략: ${data.esgStrategy || "없음"}
             subTitle: "3-1. 사업화 추진 전략",
             content: {
               competitorAnalysis: parsed.competitorAnalysis || [],
+              competitorChart: parsed.competitorChart || null,
               marketEntryStrategy: parsed.marketEntryStrategy || {
                 target: "",
                 channel: "",
@@ -427,6 +473,7 @@ ESG 전략: ${data.esgStrategy || "없음"}
                 financialProjection: "",
                 breakEvenPoint: "",
               },
+              revenueChart: parsed.revenueChart || null,
               esgStrategy: parsed.esgStrategy || {
                 environment: "",
                 social: "",
@@ -451,6 +498,7 @@ ESG 전략: ${data.esgStrategy || "없음"}
           competitorAnalysis: (data.competitorAnalysis || "")
             .split("\n")
             .filter((c: string) => c.trim()),
+          competitorChart: null,
           marketEntryStrategy: {
             target: "",
             channel: "",
@@ -463,6 +511,7 @@ ESG 전략: ${data.esgStrategy || "없음"}
             financialProjection: "",
             breakEvenPoint: "",
           },
+          revenueChart: null,
           esgStrategy: {
             environment: "",
             social: "",

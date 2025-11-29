@@ -195,6 +195,53 @@ interface ProblemSection {
   }>;
 }
 
+// 로드맵 차트 데이터 타입
+export interface RoadmapChartData {
+  title: string;
+  totalMonths: number;
+  phases: Array<{
+    name: string;
+    startMonth: number;
+    endMonth: number;
+    color: string;
+  }>;
+}
+
+// 예산 차트 데이터 타입
+export interface BudgetChartData {
+  title: string;
+  phase1: Array<{
+    category: string;
+    amount: number;
+  }>;
+  phase2: Array<{
+    category: string;
+    amount: number;
+  }>;
+}
+
+// 경쟁사 비교 차트 데이터 타입
+export interface CompetitorChartData {
+  title: string;
+  categories: string[];
+  competitors: Array<{
+    name: string;
+    scores: number[];
+  }>;
+}
+
+// 매출 전망 차트 데이터 타입
+export interface RevenueChartData {
+  title: string;
+  unit: string;
+  data: Array<{
+    period: string;
+    revenue: number;
+    cost: number;
+    profit: number;
+  }>;
+}
+
 interface SolutionSection {
   title: string;
   subSections: Array<{
@@ -207,7 +254,10 @@ interface SolutionSection {
         task: string;
         period: string;
         detail: string;
+        startMonth?: number;
+        endMonth?: number;
       }>;
+      roadmapChart?: RoadmapChartData | null;
       budgetPhase1?: {
         items: Array<{
           category: string;
@@ -224,6 +274,7 @@ interface SolutionSection {
         }>;
         total: string;
       };
+      budgetChart?: BudgetChartData | null;
     };
   }>;
 }
@@ -234,6 +285,7 @@ interface ScaleupSection {
     subTitle: string;
     content: {
       competitorAnalysis: string[];
+      competitorChart?: CompetitorChartData | null;
       marketEntryStrategy: {
         target: string;
         channel: string;
@@ -246,6 +298,7 @@ interface ScaleupSection {
         financialProjection: string;
         breakEvenPoint: string;
       };
+      revenueChart?: RevenueChartData | null;
       esgStrategy: {
         environment: string;
         social: string;

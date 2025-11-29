@@ -21,7 +21,13 @@ import {
   ShadingType,
 } from "docx";
 import { saveAs } from "file-saver";
-import { BusinessPlanOutput } from "@/lib/api/businessPlan";
+import {
+  BusinessPlanOutput,
+  RoadmapChartData,
+  BudgetChartData,
+  CompetitorChartData,
+  RevenueChartData,
+} from "@/lib/api/businessPlan";
 
 // ============================================================
 // 예비창업패키지 예비창업자 사업계획서 양식 DOCX 생성기
@@ -289,6 +295,355 @@ function createPageBreakParagraph(): Paragraph {
   return new Paragraph({
     children: [new PageBreak()],
   });
+}
+
+// ============================================================
+// 차트 생성 함수들
+// ============================================================
+
+// 차트 색상 맵
+const CHART_COLORS: Record<string, string> = {
+  blue: "4472C4",
+  green: "70AD47",
+  orange: "ED7D31",
+  purple: "7030A0",
+  red: "C00000",
+  yellow: "FFC000",
+  gray: "7F7F7F",
+  cyan: "00B0F0",
+};
+
+// 로드맵 간트 차트 생성
+function createRoadmapChart(data: RoadmapChartData): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
+
+  // 차트 제목
+  elements.push(
+    createParagraph(`< ${data.title} >`, {
+      bold: true,
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 200, after: 100 },
+    })
+  );
+
+  // 월 헤더 생성 (1월 ~ 12월)
+  const monthHeaders = ["단계"];
+  for (let i = 1; i <= data.totalMonths; i++) {
+    monthHeaders.push(`${i}월`);
+  }
+
+  // 헤더 행
+  const headerCells = monthHeaders.map((h, i) =>
+    createTableCell(h, {
+      isHeader: true,
+      width: i === 0 ? 25 : Math.floor(75 / data.totalMonths),
+      alignment: AlignmentType.CENTER,
+    })
+  );
+
+  // 데이터 행 생성
+  const dataRows = data.phases.map((phase) => {
+    const cells: TableCell[] = [
+      createTableCell(phase.name, {
+        width: 25,
+        alignment: AlignmentType.LEFT,
+      }),
+    ];
+
+    // 각 월에 대해 색상 칠하기
+    for (let month = 1; month <= data.totalMonths; month++) {
+      const isActive = month >= phase.startMonth && month <= phase.endMonth;
+      cells.push(
+        createTableCell(isActive ? "■" : "", {
+          width: Math.floor(75 / data.totalMonths),
+          alignment: AlignmentType.CENTER,
+          shading: isActive
+            ? CHART_COLORS[phase.color] || CHART_COLORS.blue
+            : undefined,
+        })
+      );
+    }
+
+    return new TableRow({ children: cells });
+  });
+
+  const table = new Table({
+    rows: [new TableRow({ children: headerCells, tableHeader: true }), ...dataRows],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TABLE_BORDERS,
+    layout: TableLayoutType.FIXED,
+  });
+
+  elements.push(table);
+  return elements;
+}
+
+// 예산 배분 차트 (가로 막대 차트 형태의 테이블)
+function createBudgetChart(data: BudgetChartData): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
+
+  elements.push(
+    createParagraph(`< ${data.title} >`, {
+      bold: true,
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 200, after: 100 },
+    })
+  );
+
+  // 모든 예산 항목 합치기
+  const allItems = [
+    ...data.phase1.map((item) => ({ ...item, phase: "1단계" })),
+    ...data.phase2.map((item) => ({ ...item, phase: "2단계" })),
+  ];
+
+  // 최대값 찾기
+  const maxAmount = Math.max(...allItems.map((item) => item.amount));
+
+  // 테이블 생성
+  const headerCells = [
+    createTableCell("단계", { isHeader: true, width: 12 }),
+    createTableCell("비목", { isHeader: true, width: 20 }),
+    createTableCell("금액", { isHeader: true, width: 18 }),
+    createTableCell("비율", { isHeader: true, width: 50 }),
+  ];
+
+  const dataRows = allItems.map((item) => {
+    const ratio = Math.round((item.amount / maxAmount) * 100);
+    // 비율을 시각적 바로 표현 (█ 문자 사용)
+    const barLength = Math.round(ratio / 5); // 최대 20개
+    const bar = "█".repeat(barLength);
+
+    return new TableRow({
+      children: [
+        createTableCell(item.phase, { width: 12, alignment: AlignmentType.CENTER }),
+        createTableCell(item.category, { width: 20, alignment: AlignmentType.LEFT }),
+        createTableCell(`${(item.amount / 10000).toLocaleString()}만원`, {
+          width: 18,
+          alignment: AlignmentType.RIGHT,
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: bar,
+                  size: FONT.size.body,
+                  font: FONT.default,
+                  color: CHART_COLORS.blue,
+                }),
+                new TextRun({
+                  text: ` ${ratio}%`,
+                  size: FONT.size.small,
+                  font: FONT.default,
+                }),
+              ],
+              alignment: AlignmentType.LEFT,
+            }),
+          ],
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 50, bottom: 50, left: 100, right: 100 },
+        }),
+      ],
+    });
+  });
+
+  const table = new Table({
+    rows: [new TableRow({ children: headerCells, tableHeader: true }), ...dataRows],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TABLE_BORDERS,
+    layout: TableLayoutType.FIXED,
+  });
+
+  elements.push(table);
+  return elements;
+}
+
+// 경쟁사 비교 차트 (비교 테이블)
+function createCompetitorChart(data: CompetitorChartData): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
+
+  elements.push(
+    createParagraph(`< ${data.title} >`, {
+      bold: true,
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 200, after: 100 },
+    })
+  );
+
+  // 헤더: 항목 | 자사 | 경쟁사A | 경쟁사B ...
+  const headerCells = [
+    createTableCell("평가 항목", { isHeader: true, width: 25 }),
+    ...data.competitors.map((comp) =>
+      createTableCell(comp.name, {
+        isHeader: true,
+        width: Math.floor(75 / data.competitors.length),
+      })
+    ),
+  ];
+
+  // 각 카테고리별 점수 행
+  const dataRows = data.categories.map((category, catIdx) => {
+    const cells: TableCell[] = [
+      createTableCell(category, { width: 25, alignment: AlignmentType.LEFT }),
+    ];
+
+    data.competitors.forEach((comp) => {
+      const score = comp.scores[catIdx];
+      // 점수를 시각적으로 표현 (★ 사용, 5점 만점으로 환산)
+      const stars = Math.round(score / 20); // 100점 만점 -> 5점 만점
+      const starDisplay = "★".repeat(stars) + "☆".repeat(5 - stars);
+
+      cells.push(
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: starDisplay,
+                  size: FONT.size.body,
+                  font: FONT.default,
+                  color: comp.name === "자사" ? CHART_COLORS.blue : CHART_COLORS.gray,
+                }),
+                new TextRun({
+                  text: ` (${score})`,
+                  size: FONT.size.small,
+                  font: FONT.default,
+                }),
+              ],
+              alignment: AlignmentType.CENTER,
+            }),
+          ],
+          width: { size: Math.floor(75 / data.competitors.length), type: WidthType.PERCENTAGE },
+          verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 50, bottom: 50, left: 50, right: 50 },
+        })
+      );
+    });
+
+    return new TableRow({ children: cells });
+  });
+
+  // 합계 행
+  const totalCells: TableCell[] = [
+    createTableCell("총점", { isHeader: true, width: 25 }),
+  ];
+  data.competitors.forEach((comp) => {
+    const total = comp.scores.reduce((sum, score) => sum + score, 0);
+    totalCells.push(
+      createTableCell(`${total}점`, {
+        isHeader: true,
+        width: Math.floor(75 / data.competitors.length),
+      })
+    );
+  });
+
+  const table = new Table({
+    rows: [
+      new TableRow({ children: headerCells, tableHeader: true }),
+      ...dataRows,
+      new TableRow({ children: totalCells }),
+    ],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TABLE_BORDERS,
+    layout: TableLayoutType.FIXED,
+  });
+
+  elements.push(table);
+  return elements;
+}
+
+// 매출 전망 차트 (막대 그래프 형태의 테이블)
+function createRevenueChart(data: RevenueChartData): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
+
+  elements.push(
+    createParagraph(`< ${data.title} > (단위: ${data.unit})`, {
+      bold: true,
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 200, after: 100 },
+    })
+  );
+
+  // 최대값 찾기
+  const maxValue = Math.max(...data.data.map((d) => Math.max(d.revenue, d.cost)));
+
+  // 헤더
+  const headerCells = [
+    createTableCell("구분", { isHeader: true, width: 15 }),
+    createTableCell("매출", { isHeader: true, width: 15 }),
+    createTableCell("비용", { isHeader: true, width: 15 }),
+    createTableCell("손익", { isHeader: true, width: 15 }),
+    createTableCell("매출 추이", { isHeader: true, width: 40 }),
+  ];
+
+  // 데이터 행
+  const dataRows = data.data.map((item) => {
+    const revenueRatio = Math.round((item.revenue / maxValue) * 100);
+    const barLength = Math.round(revenueRatio / 5);
+    const bar = "█".repeat(barLength);
+
+    return new TableRow({
+      children: [
+        createTableCell(item.period, { width: 15, alignment: AlignmentType.CENTER }),
+        createTableCell(`${item.revenue.toLocaleString()}`, {
+          width: 15,
+          alignment: AlignmentType.RIGHT,
+        }),
+        createTableCell(`${item.cost.toLocaleString()}`, {
+          width: 15,
+          alignment: AlignmentType.RIGHT,
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${item.profit >= 0 ? "+" : ""}${item.profit.toLocaleString()}`,
+                  size: FONT.size.body,
+                  font: FONT.default,
+                  color: item.profit >= 0 ? CHART_COLORS.blue : CHART_COLORS.red,
+                  bold: true,
+                }),
+              ],
+              alignment: AlignmentType.RIGHT,
+            }),
+          ],
+          width: { size: 15, type: WidthType.PERCENTAGE },
+          verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 50, bottom: 50, left: 100, right: 100 },
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: bar,
+                  size: FONT.size.body,
+                  font: FONT.default,
+                  color: CHART_COLORS.green,
+                }),
+              ],
+              alignment: AlignmentType.LEFT,
+            }),
+          ],
+          width: { size: 40, type: WidthType.PERCENTAGE },
+          verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 50, bottom: 50, left: 100, right: 100 },
+        }),
+      ],
+    });
+  });
+
+  const table = new Table({
+    rows: [new TableRow({ children: headerCells, tableHeader: true }), ...dataRows],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TABLE_BORDERS,
+    layout: TableLayoutType.FIXED,
+  });
+
+  elements.push(table);
+  return elements;
 }
 
 // ============================================================
@@ -600,6 +955,13 @@ export function generateBusinessPlanDocumentV2(
       children.push(createParagraph("", { spacing: { after: 200 } }));
     }
 
+    // 로드맵 차트 (간트 차트)
+    if (sub.content.roadmapChart) {
+      const roadmapElements = createRoadmapChart(sub.content.roadmapChart);
+      roadmapElements.forEach((el) => children.push(el));
+      children.push(createParagraph("", { spacing: { after: 200 } }));
+    }
+
     // 1단계 예산
     if (sub.content.budgetPhase1) {
       children.push(
@@ -649,6 +1011,13 @@ export function generateBusinessPlanDocumentV2(
         [20, 55, 25]
       );
       children.push(budget2Table);
+      children.push(createParagraph("", { spacing: { after: 200 } }));
+    }
+
+    // 예산 배분 차트
+    if (sub.content.budgetChart) {
+      const budgetChartElements = createBudgetChart(sub.content.budgetChart);
+      budgetChartElements.forEach((el) => children.push(el));
     }
   });
 
@@ -696,6 +1065,13 @@ export function generateBusinessPlanDocumentV2(
         children.push(createBulletPoint(item, 1));
       });
       children.push(createParagraph("", { spacing: { after: 100 } }));
+    }
+
+    // 경쟁사 비교 차트
+    if (sub.content.competitorChart) {
+      const competitorChartElements = createCompetitorChart(sub.content.competitorChart);
+      competitorChartElements.forEach((el) => children.push(el));
+      children.push(createParagraph("", { spacing: { after: 200 } }));
     }
 
     // 시장 진입 전략
@@ -753,6 +1129,13 @@ export function generateBusinessPlanDocumentV2(
         )
       );
       children.push(createParagraph("", { spacing: { after: 100 } }));
+    }
+
+    // 매출 전망 차트
+    if (sub.content.revenueChart) {
+      const revenueChartElements = createRevenueChart(sub.content.revenueChart);
+      revenueChartElements.forEach((el) => children.push(el));
+      children.push(createParagraph("", { spacing: { after: 200 } }));
     }
 
     // ESG 전략
