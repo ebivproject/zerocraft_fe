@@ -12,8 +12,8 @@ export default function PrivacyPage() {
         <section className={styles.section}>
           <h2>1. 개인정보의 수집 및 이용 목적</h2>
           <p>
-            ZeroCraft(이하 &quot;서비스&quot;)는 다음의 목적을 위해 개인정보를 수집 및
-            이용합니다.
+            ZeroCraft(이하 &quot;서비스&quot;)는 다음의 목적을 위해 개인정보를
+            수집 및 이용합니다.
           </p>
           <ul>
             <li>회원 가입 및 관리</li>
@@ -55,7 +55,10 @@ export default function PrivacyPage() {
 
         <section className={styles.section}>
           <h2>5. 개인정보의 처리 위탁</h2>
-          <p>서비스는 원활한 서비스 제공을 위해 다음과 같이 개인정보를 위탁합니다.</p>
+          <p>
+            서비스는 원활한 서비스 제공을 위해 다음과 같이 개인정보를
+            위탁합니다.
+          </p>
           <ul>
             <li>결제 처리: 결제 대행사</li>
             <li>클라우드 서비스: AWS, Google Cloud</li>
@@ -76,8 +79,8 @@ export default function PrivacyPage() {
         <section className={styles.section}>
           <h2>7. 쿠키의 사용</h2>
           <p>
-            서비스는 이용자 경험 개선을 위해 쿠키를 사용합니다. 이용자는 브라우저
-            설정을 통해 쿠키 사용을 거부할 수 있습니다.
+            서비스는 이용자 경험 개선을 위해 쿠키를 사용합니다. 이용자는
+            브라우저 설정을 통해 쿠키 사용을 거부할 수 있습니다.
           </p>
         </section>
 

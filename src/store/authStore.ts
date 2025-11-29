@@ -138,12 +138,23 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      version: 2, // 버전 업그레이드로 aiHintsRemaining 리셋
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         credits: state.credits,
         aiHintsRemaining: state.aiHintsRemaining,
       }),
+      // 버전 마이그레이션 - 이전 버전에서 aiHintsRemaining을 20으로 리셋
+      migrate: (persistedState, version) => {
+        if (version < 2) {
+          return {
+            ...(persistedState as object),
+            aiHintsRemaining: 20, // MAX_AI_HINTS_PER_CREDIT
+          };
+        }
+        return persistedState;
+      },
     }
   )
 );

@@ -48,9 +48,7 @@ export default function PaymentModal({
     } catch (err) {
       console.error("결제 오류:", err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "결제 처리 중 오류가 발생했습니다."
+        err instanceof Error ? err.message : "결제 처리 중 오류가 발생했습니다."
       );
     } finally {
       setIsProcessing(false);
@@ -136,11 +134,7 @@ export default function PaymentModal({
           </div>
 
           {/* 에러 메시지 */}
-          {error && (
-            <div className={styles.errorMessage}>
-              {error}
-            </div>
-          )}
+          {error && <div className={styles.errorMessage}>{error}</div>}
 
           {/* 결제 버튼 */}
           <button

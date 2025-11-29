@@ -114,17 +114,29 @@ ${contextInfo}
 // AI 콘텐츠 생성 (Gemini API 호출)
 async function generateAIContent(prompt: string): Promise<string> {
   // 환경변수 이름 다양하게 체크 (대소문자)
-  const apiKey = process.env.GEMINI_API_KEY || process.env.gemini_api_key || process.env.GOOGLE_AI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.gemini_api_key ||
+    process.env.GOOGLE_AI_API_KEY;
 
   if (!apiKey) {
-    console.error("Available env keys:", Object.keys(process.env).filter(k => k.toLowerCase().includes('gemini') || k.toLowerCase().includes('google')));
-    throw new Error("Gemini API Key가 설정되지 않았습니다. 환경변수를 확인해주세요.");
+    console.error(
+      "Available env keys:",
+      Object.keys(process.env).filter(
+        (k) =>
+          k.toLowerCase().includes("gemini") ||
+          k.toLowerCase().includes("google")
+      )
+    );
+    throw new Error(
+      "Gemini API Key가 설정되지 않았습니다. 환경변수를 확인해주세요."
+    );
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  
-  // gemini-pro가 deprecated된 경우 gemini-1.5-flash 또는 gemini-1.5-pro 사용
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  // gemini-2.5-pro 사용
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
   try {
     const result = await model.generateContent(prompt);

@@ -94,7 +94,10 @@ export const creditsApi = {
   },
 
   // 이용권 사용 (차감)
-  use: async (description?: string, businessPlanId?: string): Promise<CreditUseResponse> => {
+  use: async (
+    description?: string,
+    businessPlanId?: string
+  ): Promise<CreditUseResponse> => {
     const response = await axiosInstance.post(API_ENDPOINTS.CREDITS.USE, {
       description,
       businessPlanId,

@@ -70,29 +70,32 @@ function WizardPageContent() {
   }, [user, credits, router]);
 
   // 결제 완료 시 이용권 잔액 다시 조회 후 작성 진입 또는 생성 재시도
-  const handlePaymentComplete = useCallback(async (creditsAdded: number = 1) => {
-    // 백엔드에서 실제 이용권 잔액 다시 조회
-    try {
-      await fetchCredits();
-    } catch {
-      // 조회 실패 시 로컬로 추가 (fallback)
-      addCredits(creditsAdded);
-    }
-    
-    setShowPaymentModal(false);
-    setError(null);
+  const handlePaymentComplete = useCallback(
+    async (creditsAdded: number = 1) => {
+      // 백엔드에서 실제 이용권 잔액 다시 조회
+      try {
+        await fetchCredits();
+      } catch {
+        // 조회 실패 시 로컬로 추가 (fallback)
+        addCredits(creditsAdded);
+      }
 
-    // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
-    if (pendingWizardData) {
-      // 약간의 딜레이 후 생성 재시도 (상태 업데이트 반영을 위해)
-      setTimeout(() => {
-        generateBusinessPlan(pendingWizardData);
-      }, 100);
-    } else {
-      // 없으면 기존 작성 단계로 진입
-      setStep("step_input");
-    }
-  }, [addCredits, fetchCredits, pendingWizardData]);
+      setShowPaymentModal(false);
+      setError(null);
+
+      // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
+      if (pendingWizardData) {
+        // 약간의 딜레이 후 생성 재시도 (상태 업데이트 반영을 위해)
+        setTimeout(() => {
+          generateBusinessPlan(pendingWizardData);
+        }, 100);
+      } else {
+        // 없으면 기존 작성 단계로 진입
+        setStep("step_input");
+      }
+    },
+    [addCredits, fetchCredits, pendingWizardData]
+  );
 
   // 사업계획서 생성 함수 (재사용 가능하도록 분리)
   const generateBusinessPlan = useCallback(
@@ -123,7 +126,9 @@ function WizardPageContent() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "AI 사업계획서 생성에 실패했습니다.");
+          throw new Error(
+            errorData.error || "AI 사업계획서 생성에 실패했습니다."
+          );
         }
 
         const { output } = await response.json();
@@ -159,7 +164,9 @@ function WizardPageContent() {
           } catch (creditError) {
             console.error("이용권 차감 실패:", creditError);
             // 이미 생성은 완료되었으므로 결과는 보여줌 (차감 실패 경고만)
-            console.warn("이용권 차감에 실패했지만 사업계획서는 생성되었습니다.");
+            console.warn(
+              "이용권 차감에 실패했지만 사업계획서는 생성되었습니다."
+            );
           }
         }
 

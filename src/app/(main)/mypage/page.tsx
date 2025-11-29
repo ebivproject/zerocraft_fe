@@ -103,7 +103,7 @@ export default function MyPage() {
     try {
       // 백엔드에서 사업계획서 상세 데이터 가져오기
       const detail = await businessPlanApi.getById(projectId);
-      
+
       // 프론트엔드에서 DOCX 생성 (content 필드에 BusinessPlanOutput이 저장됨)
       if (detail.content) {
         await downloadBusinessPlanDocxV2(detail.content, projectTitle);
@@ -321,7 +321,9 @@ export default function MyPage() {
                     <div className={styles.projectActions}>
                       <button
                         className={styles.downloadButtonLarge}
-                        onClick={() => handleDownload(project.id, project.title)}
+                        onClick={() =>
+                          handleDownload(project.id, project.title)
+                        }
                       >
                         <svg
                           width="18"

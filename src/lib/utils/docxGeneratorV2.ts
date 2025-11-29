@@ -930,7 +930,7 @@ export async function downloadBusinessPlanDocxV2(
 ): Promise<void> {
   const doc = generateBusinessPlanDocumentV2(data);
   const blob = await Packer.toBlob(doc);
-  
+
   // 파일명 생성 (확장자 포함)
   let name: string;
   if (filename) {
@@ -941,7 +941,7 @@ export async function downloadBusinessPlanDocxV2(
       new Date().toISOString().split("T")[0]
     }.docx`;
   }
-  
+
   saveAs(blob, name);
 }
 
