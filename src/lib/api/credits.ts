@@ -26,26 +26,33 @@ export interface CreditHistoryResponse {
   data: CreditHistoryItem[];
 }
 
-// 결제 요청
+// 결제 준비 요청
 export interface PaymentCreateRequest {
   productId: string;
-  paymentMethod: string;
-  amount: number;
   couponCode?: string; // 쿠폰 코드 (선택)
 }
 
-// 결제 요청 응답
+// 결제 준비 응답
 export interface PaymentCreateResponse {
   paymentId: string;
   orderId: string;
-  amount: number;
-  status: "pending" | "completed" | "failed" | "cancelled" | "refunded";
-  paymentUrl: string;
+  amount: number; // 쿠폰 적용 후 최종 금액
+  productName: string;
+  customerName: string;
+  customerEmail: string;
 }
 
-// 결제 확인 응답
+// 결제 승인 요청 (토스페이먼츠)
+export interface PaymentConfirmRequest {
+  orderId: string;
+  paymentKey: string;
+  amount: number;
+}
+
+// 결제 승인 응답
 export interface PaymentConfirmResponse {
   paymentId: string;
+  orderId: string;
   status: "completed" | "failed";
   creditsAdded: number;
   currentCredits: number;
@@ -120,10 +127,11 @@ export const paymentsApi = {
     return response.data;
   },
 
-  // 결제 확인/완료
-  confirm: async (paymentId: string): Promise<PaymentConfirmResponse> => {
+  // 결제 승인 (토스페이먼츠)
+  confirm: async (data: PaymentConfirmRequest): Promise<PaymentConfirmResponse> => {
     const response = await axiosInstance.post(
-      API_ENDPOINTS.PAYMENTS.CONFIRM(paymentId)
+      API_ENDPOINTS.PAYMENTS.CONFIRM,
+      data
     );
     return response.data;
   },

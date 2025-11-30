@@ -1,232 +1,65 @@
-# Backend API Implementation - Coupon System
+💰 결제 API 라우팅 (/api/payments)
 
-## 1. Coupon Validate API (쿠폰 검증)
-
-```
-POST /api/coupons/validate
-```
-
-**Request:**
-```json
-{
-  "code": "WELCOME2024"
-}
-```
-
-**Response (Success):**
-```json
-{
-  "valid": true,
-  "coupon": {
-    "id": "coupon-uuid",
-    "code": "WELCOME2024",
-    "discountAmount": 30000,
-    "expiresAt": "2025-12-31T23:59:59Z",
-    "maxUses": 100,
-    "usedCount": 5,
-    "isActive": true,
-    "description": "Welcome coupon",
-    "createdAt": "2025-01-01T00:00:00Z",
-    "updatedAt": "2025-01-01T00:00:00Z"
-  }
-}
-```
-
-**Response (Fail):**
-```json
-{
-  "valid": false,
-  "message": "Expired coupon"
-}
-```
-
-**Validation Logic:**
-- Check coupon code exists
-- Check `isActive === true`
-- Check `expiresAt > now`
-- If `maxUses` is set, check `usedCount < maxUses`
-
----
-
-## 2. Coupon List API (Admin only)
-
-```
-GET /api/coupons
-Authorization: Bearer {admin_token}
-```
-
-**Permission:** `role === "admin"` only
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "coupon-uuid",
-      "code": "WELCOME2024",
-      "discountAmount": 30000,
-      "expiresAt": "2025-12-31T23:59:59Z",
-      "maxUses": 100,
-      "usedCount": 5,
-      "isActive": true,
-      "description": "Welcome coupon",
-      "createdAt": "2025-01-01T00:00:00Z",
-      "updatedAt": "2025-01-01T00:00:00Z"
-    }
-  ]
-}
-```
-
----
-
-## 3. Coupon Create API (Admin only)
-
-```
-POST /api/coupons
-Authorization: Bearer {admin_token}
-```
-
-**Permission:** `role === "admin"` only
-
-**Request:**
-```json
-{
-  "code": "NEWYEAR2025",
-  "discountAmount": 30000,
-  "expiresAt": "2025-12-31T23:59:59Z",
-  "maxUses": 100,
-  "description": "New Year discount"
-}
-```
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| code | string | O | Coupon code (uppercase, unique) |
-| discountAmount | number | O | Discount amount (KRW) |
-| expiresAt | string | O | Expiry datetime (ISO 8601) |
-| maxUses | number | X | Max usage count (null = unlimited) |
-| description | string | X | Coupon description |
-
-**Response:**
-```json
-{
-  "id": "new-coupon-uuid",
-  "code": "NEWYEAR2025",
-  "discountAmount": 30000,
-  "expiresAt": "2025-12-31T23:59:59Z",
-  "maxUses": 100,
-  "usedCount": 0,
-  "isActive": true,
-  "description": "New Year discount",
-  "createdAt": "2025-01-15T00:00:00Z",
-  "updatedAt": "2025-01-15T00:00:00Z"
-}
-```
-
----
-
-## 4. Coupon Update API (Admin only)
-
-```
-PATCH /api/coupons/{id}
-Authorization: Bearer {admin_token}
-```
-
-**Permission:** `role === "admin"` only
-
-**Request:**
-```json
-{
-  "isActive": false
-}
-```
-
-All fields optional: `code`, `discountAmount`, `expiresAt`, `maxUses`, `description`, `isActive`
-
----
-
-## 5. Coupon Delete API (Admin only)
-
-```
-DELETE /api/coupons/{id}
-Authorization: Bearer {admin_token}
-```
-
-**Permission:** `role === "admin"` only
-
-**Response:** 204 No Content
-
----
-
-## 6. Payment with Coupon
-
-```
-POST /api/payments
-Authorization: Bearer {token}
-```
-
-**Request:**
-```json
-{
-  "productId": "credit-1",
-  "paymentMethod": "card",
-  "amount": 20000,
-  "couponCode": "WELCOME2024"
-}
-```
-
-**Processing Logic:**
-1. If `couponCode` exists, validate coupon
-2. Payment amount = Original price (50,000) - Coupon discount
-3. On payment success, increment coupon's `usedCount`
-
----
-
-## 7. User Model - Add role field
-
-```json
-{
-  "id": "user-uuid",
-  "email": "admin@example.com",
-  "name": "Admin",
-  "role": "admin",
-  ...
-}
-```
-
-| role value | Description |
-|------------|-------------|
-| user | Normal user (default) |
-| admin | Administrator (can manage coupons) |
-
----
-
-## DB Schema (Coupon Table)
-
-```sql
-CREATE TABLE coupons (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code VARCHAR(50) UNIQUE NOT NULL,
-  discount_amount INTEGER NOT NULL,
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  max_uses INTEGER,  -- NULL = unlimited
-  used_count INTEGER DEFAULT 0,
-  is_active BOOLEAN DEFAULT true,
-  description VARCHAR(255),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Index
-CREATE INDEX idx_coupons_code ON coupons(code);
-CREATE INDEX idx_coupons_is_active ON coupons(is_active);
-```
-
----
-
-## Price Policy Summary
-
-| Case | Original | Discount | Final |
-|------|----------|----------|-------|
-| Default (no coupon) | 50,000 KRW | 0 | **50,000 KRW** |
-| Coupon 30,000 applied | 50,000 KRW | -30,000 KRW | **20,000 KRW** |
+1. 결제 준비
+   POST /api/payments
+   Request:
+   {
+   "productId": "business_plan_1",
+   "couponCode": "WELCOME30" // 선택사항
+   }
+   Response:
+   {
+   "paymentId": "uuid",
+   "orderId": "ORDER_1701234567890_abc12345",
+   "amount": 20000, // 쿠폰 적용 후 최종 금액
+   "productName": "AI 사업계획서 이용권 1회",
+   "customerName": "홍길동",
+   "customerEmail": "user@example.com"
+   }
+2. 결제 승인 (토스페이먼츠)
+   POST /api/payments/confirm
+   Request:
+   {
+   "orderId": "ORDER*1701234567890_abc12345",
+   "paymentKey": "토스페이먼츠*결제키",
+   "amount": 20000
+   }
+   Response:
+   {
+   "paymentId": "uuid",
+   "orderId": "ORDER_1701234567890_abc12345",
+   "status": "completed",
+   "creditsAdded": 1,
+   "currentCredits": 5,
+   "message": "결제가 완료되었습니다. 이용권 1회가 지급되었습니다."
+   }
+3. 결제 내역 조회
+   GET /api/payments?page=1&limit=10
+   Response:
+   {
+   "data": [
+   {
+   "id": "uuid",
+   "orderId": "ORDER_xxx",
+   "productName": "AI 사업계획서 이용권 1회",
+   "amount": 50000,
+   "creditsAdded": 1,
+   "status": "completed",
+   "paymentMethod": "card",
+   "createdAt": "2024-11-29T..."
+   }
+   ],
+   "pagination": {
+   "page": 1,
+   "limit": 10,
+   "total": 5,
+   "totalPages": 1
+   }
+   }
+   📦 사용 가능한 productId
+   "business_plan_1" → 1회 이용권 (50,000원)
+   "business_plan_3" → 3회 이용권 (79,900원)
+   "business_plan_5" → 5회 이용권 (119,900원)
+   🔐 인증
+   모든 엔드포인트는 JWT 토큰 필요:
+   Authorization: Bearer {token}

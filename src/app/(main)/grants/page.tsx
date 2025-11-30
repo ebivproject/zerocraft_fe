@@ -7,9 +7,9 @@ export default function GrantsPage() {
         <div className={styles.iconWrapper}>
           <ConstructionIcon />
         </div>
-        <h1 className={styles.title}>서비스 준비중</h1>
+        <h1 className={styles.title}>2026년 데이터 준비중</h1>
         <p className={styles.description}>
-          지원사업 검색 서비스를 준비하고 있습니다.
+          2026년 지원사업 데이터를 준비하고 있습니다.
           <br />
           더 나은 서비스로 곧 찾아뵙겠습니다.
         </p>

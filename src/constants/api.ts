@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
   },
   PAYMENTS: {
     CREATE: "/api/payments",
-    CONFIRM: (id: string) => `/api/payments/${id}/confirm`,
+    CONFIRM: "/api/payments/confirm",
     LIST: "/api/payments",
   },
   COUPONS: {

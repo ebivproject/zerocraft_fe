@@ -177,6 +177,15 @@
   margin-bottom: 0.5rem;
 }
 
+.documentContent img {
+  max-width: 50%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+  margin: 1rem auto;
+}
+
 .documentContent table {
   width: 100%;
   border-collapse: collapse;

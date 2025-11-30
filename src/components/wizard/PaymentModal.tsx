@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { loadTossPayments, TossPaymentsPayment } from "@tosspayments/tosspayments-sdk";
 import { paymentsApi, couponsApi } from "@/lib/api/credits";
 import { Coupon } from "@/types/auth";
 import styles from "./PaymentModal.module.css";
@@ -12,6 +13,7 @@ interface PaymentModalProps {
 }
 
 const ORIGINAL_PRICE = 50000; // 정가
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
 
 export default function PaymentModal({
   isOpen,
@@ -19,9 +21,6 @@ export default function PaymentModal({
   onPaymentComplete,
 }: PaymentModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "kakao" | "toss">(
-    "card"
-  );
   const [error, setError] = useState<string | null>(null);
 
   // 쿠폰 관련 상태
@@ -30,10 +29,13 @@ export default function PaymentModal({
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
+  // 토스페이먼츠
+  const paymentRef = useRef<TossPaymentsPayment | null>(null);
+  const [isPaymentReady, setIsPaymentReady] = useState(false);
+
   // 가격 계산
   const calculatePrice = () => {
     if (appliedCoupon) {
-      // 쿠폰 적용 시: 정가에서 쿠폰 할인금액 차감
       const discountedPrice = ORIGINAL_PRICE - appliedCoupon.discountAmount;
       return {
         originalPrice: ORIGINAL_PRICE,
@@ -42,7 +44,6 @@ export default function PaymentModal({
         couponApplied: true,
       };
     }
-    // 쿠폰 미적용: 정가 그대로
     return {
       originalPrice: ORIGINAL_PRICE,
       discountAmount: 0,
@@ -52,6 +53,31 @@ export default function PaymentModal({
   };
 
   const priceInfo = calculatePrice();
+
+  // 토스페이먼츠 초기화
+  useEffect(() => {
+    if (!isOpen || !TOSS_CLIENT_KEY) return;
+
+    const initPayment = async () => {
+      try {
+        const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+        paymentRef.current = tossPayments.payment({
+          customerKey: `customer_${Date.now()}`,
+        });
+        setIsPaymentReady(true);
+      } catch (err) {
+        console.error("토스페이먼츠 초기화 오류:", err);
+        setError("결제 모듈을 불러오는데 실패했습니다.");
+      }
+    };
+
+    initPayment();
+
+    return () => {
+      paymentRef.current = null;
+      setIsPaymentReady(false);
+    };
+  }, [isOpen]);
 
   // 쿠폰 적용
   const handleApplyCoupon = async () => {
@@ -89,47 +115,94 @@ export default function PaymentModal({
     setCouponError(null);
   };
 
+  // 결제 요청
   const handlePayment = async () => {
+    // 금액이 0원이면 무료 처리
+    if (priceInfo.finalPrice === 0) {
+      setIsProcessing(true);
+      setError(null);
+      try {
+        const createResponse = await paymentsApi.create({
+          productId: "business_plan_1",
+          ...(appliedCoupon && { couponCode: appliedCoupon.code }),
+        });
+
+        const confirmResponse = await paymentsApi.confirm({
+          orderId: createResponse.orderId,
+          paymentKey: "FREE_PAYMENT",
+          amount: 0,
+        });
+
+        if (confirmResponse.status === "completed") {
+          onPaymentComplete(confirmResponse.creditsAdded);
+        }
+      } catch (err) {
+        console.error("무료 결제 오류:", err);
+        setError("결제 처리 중 오류가 발생했습니다.");
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
+
+    if (!paymentRef.current) {
+      setError("결제 모듈이 준비되지 않았습니다.");
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
     try {
-      // 1. 결제 요청 → paymentId 받음
+      // 1. 백엔드에서 결제 준비 (orderId 생성)
       const createResponse = await paymentsApi.create({
-        productId: "credit-1",
-        paymentMethod: paymentMethod,
-        amount: priceInfo.finalPrice,
+        productId: "business_plan_1",
         ...(appliedCoupon && { couponCode: appliedCoupon.code }),
       });
 
-      const { paymentId } = createResponse;
-
-      // 2. 데모용: 바로 결제 확인 (실제로는 PG사 결제 완료 후 호출)
-      const confirmResponse = await paymentsApi.confirm(paymentId);
-
-      if (confirmResponse.status === "completed") {
-        onPaymentComplete(confirmResponse.creditsAdded);
-      } else {
-        throw new Error("결제 확인에 실패했습니다.");
-      }
+      // 2. 토스페이먼츠 결제창 호출
+      await paymentRef.current.requestPayment({
+        method: "CARD",
+        amount: {
+          currency: "KRW",
+          value: createResponse.amount,
+        },
+        orderId: createResponse.orderId,
+        orderName: createResponse.productName,
+        customerName: createResponse.customerName,
+        customerEmail: createResponse.customerEmail,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+      });
     } catch (err) {
       console.error("결제 오류:", err);
       setError(
         err instanceof Error ? err.message : "결제 처리 중 오류가 발생했습니다."
       );
-    } finally {
       setIsProcessing(false);
     }
+  };
+
+  // 모달 닫을 때 상태 초기화
+  const handleClose = () => {
+    paymentRef.current = null;
+    setIsPaymentReady(false);
+    setError(null);
+    setCouponCode("");
+    setAppliedCoupon(null);
+    setCouponError(null);
+    setIsProcessing(false);
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 className={styles.title}>결제하기</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <button className={styles.closeButton} onClick={handleClose}>
             <CloseIcon />
           </button>
         </div>
@@ -200,40 +273,6 @@ export default function PaymentModal({
             )}
           </div>
 
-          {/* 결제 수단 */}
-          <div className={styles.paymentMethods}>
-            <h4>결제 수단</h4>
-            <div className={styles.methodGrid}>
-              <button
-                className={`${styles.methodButton} ${
-                  paymentMethod === "card" ? styles.active : ""
-                }`}
-                onClick={() => setPaymentMethod("card")}
-              >
-                <CreditCardIcon />
-                <span>신용카드</span>
-              </button>
-              <button
-                className={`${styles.methodButton} ${
-                  paymentMethod === "kakao" ? styles.active : ""
-                }`}
-                onClick={() => setPaymentMethod("kakao")}
-              >
-                <KakaoIcon />
-                <span>카카오페이</span>
-              </button>
-              <button
-                className={`${styles.methodButton} ${
-                  paymentMethod === "toss" ? styles.active : ""
-                }`}
-                onClick={() => setPaymentMethod("toss")}
-              >
-                <TossIcon />
-                <span>토스</span>
-              </button>
-            </div>
-          </div>
-
           {/* 결제 금액 */}
           <div className={styles.summary}>
             <div className={styles.summaryRow}>
@@ -261,13 +300,15 @@ export default function PaymentModal({
           <button
             className={styles.payButton}
             onClick={handlePayment}
-            disabled={isProcessing}
+            disabled={isProcessing || (priceInfo.finalPrice > 0 && !isPaymentReady)}
           >
             {isProcessing ? (
               <>
                 <SpinnerIcon />
                 결제 처리 중...
               </>
+            ) : priceInfo.finalPrice === 0 ? (
+              <>무료로 이용권 받기</>
             ) : (
               <>{priceInfo.finalPrice.toLocaleString()}원 결제하기</>
             )}
@@ -316,40 +357,6 @@ function DocumentIcon() {
       <polyline points="14 2 14 8 20 8" />
       <line x1="16" y1="13" x2="8" y2="13" />
       <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-  );
-}
-
-function CreditCardIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="14" x="2" y="5" rx="2" />
-      <line x1="2" x2="22" y1="10" y2="10" />
-    </svg>
-  );
-}
-
-function KakaoIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.83 1.87 5.32 4.68 6.73l-1.2 4.47c-.1.37.35.67.67.45l5.35-3.55c.17.01.33.02.5.02 5.52 0 10-3.58 10-8 0-4.42-4.48-8-10-8z" />
-    </svg>
-  );
-}
-
-function TossIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z" />
     </svg>
   );
 }
