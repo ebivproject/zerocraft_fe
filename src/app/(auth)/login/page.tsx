@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { authApi } from "@/lib/api/auth";
 import styles from "./page.module.css";
@@ -47,8 +48,8 @@ function LoginContent() {
       <div className={styles.card}>
         <div className={styles.header}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoIcon}>Z</span>
-            <span className={styles.logoText}>ZeroCraft</span>
+            <Image src="/logo.svg" alt="StartPlan" width={44} height={28} />
+            <span className={styles.logoText}>StartPlan</span>
           </Link>
           <h1 className={styles.title}>시작하기</h1>
           <p className={styles.subtitle}>
@@ -99,7 +100,7 @@ function LoginContent() {
         </div>
 
         <div className={styles.terms}>
-          계속 진행하면 ZeroCraft의{" "}
+          계속 진행하면 StartPlan의{" "}
           <Link href="/terms" className={styles.termsLink}>
             이용약관
           </Link>{" "}
@@ -122,8 +123,8 @@ export default function LoginPage() {
           <div className={styles.card}>
             <div className={styles.header}>
               <div className={styles.logo}>
-                <span className={styles.logoIcon}>Z</span>
-                <span className={styles.logoText}>ZeroCraft</span>
+                <Image src="/logo.svg" alt="StartPlan" width={44} height={28} />
+                <span className={styles.logoText}>StartPlan</span>
               </div>
               <p>로딩 중...</p>
             </div>

@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="footer-container">
         <div className="footer-top">
           <div className="footer-brand">
-            <div className="footer-logo">ZeroCraft</div>
+            <div className="footer-logo">StartPlan</div>
             <p className="footer-description">
               AI 기반 사업계획서 작성 도우미
               <br />
@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {currentYear} ZeroCraft. All rights reserved.</p>
+          <p>&copy; {currentYear} StartPlan. All rights reserved.</p>
           <div className="footer-legal">
             <Link href="/terms">이용약관</Link>
             <Link href="/privacy">개인정보처리방침</Link>

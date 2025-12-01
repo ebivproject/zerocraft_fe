@@ -259,7 +259,7 @@ export default function HomePage() {
           <svg
             viewBox="0 0 600 120"
             className={styles.logo_svg}
-            aria-label="ZeroCraft"
+            aria-label="StartPlan"
           >
             <defs>
               <linearGradient
@@ -286,7 +286,7 @@ export default function HomePage() {
               textAnchor="middle"
               className={styles.logo_text}
             >
-              ZeroCraft
+              StartPlan
             </text>
           </svg>
 

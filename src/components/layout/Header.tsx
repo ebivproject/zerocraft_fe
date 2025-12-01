@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { useTheme } from "@/context/ThemeProvider";
 import { ROUTES } from "@/constants/routes";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuthStore();
-  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { href: ROUTES.PROJECT_WIZARD, label: "AI 사업계획서" },
@@ -25,7 +23,7 @@ export default function Header() {
       <div className="header-container">
         <div className="header-left">
           <Link href={ROUTES.HOME} className="logo">
-            <span className="logo-text">ZeroCraft</span>
+            <span className="logo-text">StartPlan</span>
           </Link>
           <nav>
             <ul className="nav-menu">
@@ -45,16 +43,6 @@ export default function Header() {
         </div>
 
         <div className="header-right">
-          <button
-            className="btn-icon"
-            onClick={toggleTheme}
-            aria-label={
-              theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"
-            }
-          >
-            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
-          </button>
-
           {isAuthenticated && user ? (
             <Link href={ROUTES.MYPAGE} className="profile-btn">
               <div className="profile-avatar">
@@ -118,48 +106,6 @@ function DocumentIcon() {
       <line x1="16" y1="13" x2="8" y2="13" />
       <line x1="16" y1="17" x2="8" y2="17" />
       <line x1="10" y1="9" x2="8" y2="9" />
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2" />
-      <path d="M12 20v2" />
-      <path d="m4.93 4.93 1.41 1.41" />
-      <path d="m17.66 17.66 1.41 1.41" />
-      <path d="M2 12h2" />
-      <path d="M20 12h2" />
-      <path d="m6.34 17.66-1.41 1.41" />
-      <path d="m19.07 4.93-1.41 1.41" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
     </svg>
   );
 }

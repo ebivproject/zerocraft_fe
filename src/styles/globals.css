@@ -29,21 +29,6 @@
   --footer-border: #e2e8f0;
 }
 
-.dark {
-  /* Dark Mode */
-  --foreground: #f1f5f9;
-  --foreground-muted: #94a3b8;
-  --background: #0f0f1a;
-  --background-secondary: #1a1a2e;
-  --border: #2d3748;
-  --card-bg: #1a1a2e;
-  --header-bg: rgba(15, 15, 26, 0.9);
-  --footer-bg: #0a0a12;
-  --footer-text: #94a3b8;
-  --footer-heading: #e2e8f0;
-  --footer-border: rgba(255, 255, 255, 0.1);
-}
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -157,18 +142,9 @@ body {
   background: var(--primary-50);
 }
 
-.dark .nav-link:hover {
-  background: rgba(91, 124, 250, 0.1);
-}
-
 .nav-link.active {
   color: var(--primary-600);
   background: var(--primary-50);
-}
-
-.dark .nav-link.active {
-  color: var(--primary-400);
-  background: rgba(91, 124, 250, 0.15);
 }
 
 .header-right {

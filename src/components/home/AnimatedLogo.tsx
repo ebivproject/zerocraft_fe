@@ -17,7 +17,7 @@ export default function AnimatedLogo() {
       <svg
         viewBox="0 0 600 120"
         className={styles.logoSvg}
-        aria-label="ZeroCraft"
+        aria-label="StartPlan"
       >
         <defs>
           <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -38,7 +38,7 @@ export default function AnimatedLogo() {
           textAnchor="middle"
           className={styles.text}
         >
-          ZeroCraft
+          StartPlan
         </text>
       </svg>
 

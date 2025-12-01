@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <section className={styles.section}>
           <h2>1. 개인정보의 수집 및 이용 목적</h2>
           <p>
-            ZeroCraft(이하 &quot;서비스&quot;)는 다음의 목적을 위해 개인정보를
+            StartPlan(이하 &quot;서비스&quot;)는 다음의 목적을 위해 개인정보를
             수집 및 이용합니다.
           </p>
           <ul>

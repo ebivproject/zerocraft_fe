@@ -24,6 +24,11 @@ export const API_ENDPOINTS = {
   },
   ADMIN: {
     COUPONS: "/api/admin/coupons",
+    USERS: {
+      LIST: "/api/admin/users",
+      DETAIL: (id: string) => `/api/admin/users/${id}`,
+      UPDATE_CREDITS: (id: string) => `/api/admin/users/${id}/credits`,
+    },
   },
   BUSINESS_PLANS: {
     LIST: "/api/business-plans",

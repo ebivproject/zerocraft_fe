@@ -12,7 +12,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2>제1조 (목적)</h2>
           <p>
-            본 약관은 ZeroCraft(이하 &quot;서비스&quot;)가 제공하는 AI
+            본 약관은 StartPlan(이하 &quot;서비스&quot;)가 제공하는 AI
             사업계획서 생성 서비스의 이용조건 및 절차, 기타 필요한 사항을
             규정함을 목적으로 합니다.
           </p>
@@ -21,7 +21,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2>제2조 (정의)</h2>
           <p>
-            1. &quot;서비스&quot;란 ZeroCraft가 제공하는 AI 기반 사업계획서 작성
+            1. &quot;서비스&quot;란 StartPlan가 제공하는 AI 기반 사업계획서 작성
             지원 서비스를 말합니다.
           </p>
           <p>
