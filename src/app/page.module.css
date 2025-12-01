@@ -21,7 +21,6 @@
       var(--background) 70%);
   position: relative;
   padding-bottom: 0;
-  scroll-snap-align: start;
 }
 
 .heroSection::before {
@@ -166,8 +165,6 @@
   background: linear-gradient(180deg,
       var(--background-secondary) 0%,
       var(--background) 100%);
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
   padding: 100px 0;
 }
 
@@ -477,8 +474,6 @@
   background: linear-gradient(180deg,
       var(--background-secondary) 0%,
       var(--background) 100%);
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 .carousel_header {
