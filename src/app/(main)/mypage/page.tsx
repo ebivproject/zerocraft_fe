@@ -130,7 +130,6 @@ export default function MyPage() {
       }
 
       if (!businessPlanData) {
-        console.error("Response structure:", JSON.stringify(response, null, 2));
         throw new Error("사업계획서 데이터를 찾을 수 없습니다.");
       }
 
