@@ -108,18 +108,35 @@ export default function MyPage() {
       // 백엔드에서 사업계획서 상세 데이터 가져오기
       const response = await businessPlanApi.getById(projectId);
 
+      console.log("API Response:", JSON.stringify(response, null, 2));
+
       // 응답에서 content 추출 (다양한 응답 구조 대응)
-      const content = response?.content ?? (response as any)?.data?.content;
+      // 1. response.content (직접 응답)
+      // 2. response.data.content (data로 감싸진 경우)
+      // 3. response.data (content가 data 자체인 경우)
+      let content = response?.content;
+
+      if (!content && (response as any)?.data) {
+        const data = (response as any).data;
+        content = data?.content ?? data;
+      }
 
       if (!content) {
         throw new Error("사업계획서 데이터가 없습니다.");
+      }
+
+      // content 구조 검증
+      if (!content.sections || !content.sections.generalStatus) {
+        console.error("Content structure:", JSON.stringify(content, null, 2));
+        throw new Error("사업계획서 형식이 올바르지 않습니다.");
       }
 
       // 프론트엔드에서 원본 형식으로 DOCX 생성
       await downloadBusinessPlanDocxV2(content, projectTitle);
     } catch (error) {
       console.error("다운로드 실패:", error);
-      alert("다운로드에 실패했습니다. 다시 시도해주세요.");
+      const message = error instanceof Error ? error.message : "다운로드에 실패했습니다.";
+      alert(message + " 다시 시도해주세요.");
     } finally {
       setDownloadingId(null);
     }
