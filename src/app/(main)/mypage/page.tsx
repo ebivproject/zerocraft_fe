@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 import { mypageApi } from "@/lib/api/mypage";
 import { favoritesApi } from "@/lib/api/favorites";
 import { businessPlanApi } from "@/lib/api/businessPlan";
-import { saveAs } from "file-saver";
+import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
 import styles from "./page.module.css";
 
 // 타입 정의
@@ -105,12 +105,18 @@ export default function MyPage() {
 
     setDownloadingId(projectId);
     try {
-      // 백엔드에서 DOCX 파일 다운로드
-      const blob = await businessPlanApi.download(projectId, "docx");
+      // 백엔드에서 사업계획서 상세 데이터 가져오기
+      const response = await businessPlanApi.getById(projectId);
 
-      // 파일명 생성 및 다운로드
-      const filename = `${projectTitle}.docx`;
-      saveAs(blob, filename);
+      // 응답에서 content 추출 (다양한 응답 구조 대응)
+      const content = response?.content ?? (response as any)?.data?.content;
+
+      if (!content) {
+        throw new Error("사업계획서 데이터가 없습니다.");
+      }
+
+      // 프론트엔드에서 원본 형식으로 DOCX 생성
+      await downloadBusinessPlanDocxV2(content, projectTitle);
     } catch (error) {
       console.error("다운로드 실패:", error);
       alert("다운로드에 실패했습니다. 다시 시도해주세요.");
