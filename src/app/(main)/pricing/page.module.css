@@ -94,6 +94,33 @@
   box-shadow: none;
 }
 
+.badgePremium {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.planCard.enterprise {
+  border-color: #8b5cf6;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.05) 0%,
+    var(--card-bg) 100%
+  );
+}
+
+.dark .planCard.enterprise {
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    var(--card-bg) 100%
+  );
+}
+
+.planCard.enterprise:hover {
+  border-color: #7c3aed;
+}
+
 .planHeader {
   margin-bottom: 24px;
 }
@@ -143,6 +170,13 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--foreground-muted);
+}
+
+.priceLabel {
+  font-size: 32px;
+  font-weight: 700;
+  color: #8b5cf6;
+  letter-spacing: -0.5px;
 }
 
 /* Features List */
@@ -211,48 +245,58 @@
   box-shadow: none;
 }
 
+.selectButton.enterpriseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  border: none;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+}
+
+.selectButton.enterpriseButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+}
+
 /* Info Section */
 .infoSection {
   background: var(--background-secondary);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 40px;
+  text-align: center;
 }
 
 .infoSection h3 {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--foreground);
-  margin-bottom: 24px;
-}
-
-.faqList {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.faqItem {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.faqItem:last-child {
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.faqItem h4 {
-  font-size: 16px;
-  font-weight: 600;
   color: var(--foreground);
   margin-bottom: 8px;
 }
 
-.faqItem p {
-  font-size: 14px;
+.infoText {
+  font-size: 15px;
   color: var(--foreground-muted);
-  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.faqLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary-600);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.faqLink:hover {
+  gap: 12px;
+  color: var(--primary-700);
 }
 
 /* Responsive */

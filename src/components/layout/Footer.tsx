@@ -54,7 +54,7 @@ export default function Footer() {
                 <a href="/about">회사 소개</a>
               </li>
               <li>
-                <a href="/blog">블로그</a>
+                <a href="https://blog.naver.com/careez" target="_blank" rel="noopener noreferrer">블로그</a>
               </li>
             </ul>
           </div>

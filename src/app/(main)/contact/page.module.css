@@ -1,0 +1,222 @@
+.container {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.content {
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+}
+
+/* Contact Card */
+.contactCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 32px;
+  margin-bottom: 32px;
+}
+
+.kakaoSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kakaoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: #fee500;
+  border-radius: 20px;
+  color: #3c1e1e;
+  box-shadow: 0 4px 16px rgba(254, 229, 0, 0.3);
+}
+
+.kakaoInfo {
+  text-align: left;
+}
+
+.channelName {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 4px;
+}
+
+.channelId {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-600);
+}
+
+.description {
+  margin-bottom: 28px;
+}
+
+.description p {
+  font-size: 14px;
+  color: var(--foreground-muted);
+  line-height: 1.7;
+}
+
+.chatButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3c1e1e;
+  background: #fee500;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(254, 229, 0, 0.35);
+  margin-bottom: 24px;
+}
+
+.chatButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(254, 229, 0, 0.45);
+}
+
+.searchGuide {
+  padding: 16px 20px;
+  background: var(--background-secondary);
+  border-radius: 12px;
+}
+
+.searchGuide p {
+  font-size: 13px;
+  color: var(--foreground-muted);
+  margin: 0;
+}
+
+.searchGuide p:first-child {
+  color: var(--foreground);
+  margin-bottom: 6px;
+}
+
+.highlight {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.dark .highlight {
+  background: rgba(91, 124, 250, 0.15);
+  color: var(--primary-400);
+}
+
+/* Info Section */
+.infoSection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.infoCard {
+  padding: 24px 20px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.infoCard svg {
+  color: var(--primary-500);
+  margin-bottom: 12px;
+}
+
+.infoCard h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.infoCard p {
+  font-size: 13px;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+}
+
+/* Back Button */
+.backButton {
+  display: inline-block;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  color: var(--foreground);
+  border-color: var(--foreground-muted);
+  background: var(--background-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .contactCard {
+    padding: 32px 24px;
+  }
+
+  .kakaoSection {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .kakaoInfo {
+    text-align: center;
+  }
+
+  .infoSection {
+    grid-template-columns: 1fr;
+  }
+}

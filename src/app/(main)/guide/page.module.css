@@ -1,0 +1,251 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--foreground-muted);
+}
+
+/* Steps Section */
+.stepsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 64px;
+}
+
+.step {
+  display: flex;
+  gap: 24px;
+  padding: 32px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.step:hover {
+  border-color: var(--primary-300);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(91, 124, 250, 0.3);
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.stepDescription {
+  font-size: 15px;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stepList li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.stepList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--primary-500);
+  border-radius: 50%;
+}
+
+/* Tips Section */
+.tipsSection {
+  margin-bottom: 64px;
+}
+
+.tipsTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.tipsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.tipCard {
+  padding: 28px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.tipCard:hover {
+  border-color: var(--primary-300);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.tipIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  color: var(--primary-600);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.dark .tipIcon {
+  background: rgba(91, 124, 250, 0.15);
+  color: var(--primary-400);
+}
+
+.tipCard h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.tipCard p {
+  font-size: 14px;
+  color: var(--foreground-muted);
+  line-height: 1.6;
+}
+
+/* CTA Section */
+.ctaSection {
+  text-align: center;
+  padding: 48px;
+  background: linear-gradient(135deg, rgba(91, 124, 250, 0.05), rgba(91, 124, 250, 0.1));
+  border: 1px solid var(--primary-200);
+  border-radius: 24px;
+}
+
+.dark .ctaSection {
+  background: rgba(91, 124, 250, 0.1);
+  border-color: var(--primary-800);
+}
+
+.ctaSection h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.ctaSection p {
+  font-size: 16px;
+  color: var(--foreground-muted);
+  margin-bottom: 24px;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 16px 40px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(91, 124, 250, 0.35);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(91, 124, 250, 0.45);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .step {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .tipsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ctaSection {
+    padding: 32px 24px;
+  }
+}
