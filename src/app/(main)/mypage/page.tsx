@@ -108,31 +108,34 @@ export default function MyPage() {
       // 백엔드에서 사업계획서 상세 데이터 가져오기
       const response = await businessPlanApi.getById(projectId);
 
-      console.log("API Response:", JSON.stringify(response, null, 2));
+      // 응답에서 실제 사업계획서 데이터 추출 (다양한 응답 구조 대응)
+      // 백엔드 구조: response.data에 실제 sections가 있음
+      let businessPlanData = null;
 
-      // 응답에서 content 추출 (다양한 응답 구조 대응)
-      // 1. response.content (직접 응답)
-      // 2. response.data.content (data로 감싸진 경우)
-      // 3. response.data (content가 data 자체인 경우)
-      let content = response?.content;
-
-      if (!content && (response as any)?.data) {
-        const data = (response as any).data;
-        content = data?.content ?? data;
+      // 1. response.data에 sections가 있는 경우 (백엔드 실제 구조)
+      if ((response as any)?.data?.sections?.generalStatus) {
+        businessPlanData = (response as any).data;
+      }
+      // 2. response.content.data에 sections가 있는 경우
+      else if ((response as any)?.content?.data?.sections?.generalStatus) {
+        businessPlanData = (response as any).content.data;
+      }
+      // 3. response.content에 직접 sections가 있는 경우
+      else if (response?.content?.sections?.generalStatus) {
+        businessPlanData = response.content;
+      }
+      // 4. response 자체에 sections가 있는 경우
+      else if ((response as any)?.sections?.generalStatus) {
+        businessPlanData = response;
       }
 
-      if (!content) {
-        throw new Error("사업계획서 데이터가 없습니다.");
-      }
-
-      // content 구조 검증
-      if (!content.sections || !content.sections.generalStatus) {
-        console.error("Content structure:", JSON.stringify(content, null, 2));
-        throw new Error("사업계획서 형식이 올바르지 않습니다.");
+      if (!businessPlanData) {
+        console.error("Response structure:", JSON.stringify(response, null, 2));
+        throw new Error("사업계획서 데이터를 찾을 수 없습니다.");
       }
 
       // 프론트엔드에서 원본 형식으로 DOCX 생성
-      await downloadBusinessPlanDocxV2(content, projectTitle);
+      await downloadBusinessPlanDocxV2(businessPlanData, projectTitle);
     } catch (error) {
       console.error("다운로드 실패:", error);
       const message = error instanceof Error ? error.message : "다운로드에 실패했습니다.";
