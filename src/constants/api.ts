@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
       LIST: "/api/admin/users",
       DETAIL: (id: string) => `/api/admin/users/${id}`,
       UPDATE_CREDITS: (id: string) => `/api/admin/users/${id}/credits`,
+      UPDATE_ROLE: (id: string) => `/api/admin/users/${id}/role`,
     },
   },
   BUSINESS_PLANS: {

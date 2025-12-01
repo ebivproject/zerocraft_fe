@@ -184,6 +184,39 @@
   border-radius: 20px;
 }
 
+/* Role Cell */
+.roleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roleToggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--foreground-muted);
+  transition: all 0.2s ease;
+}
+
+.roleToggleButton:hover:not(:disabled) {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  color: var(--primary-600);
+}
+
+.roleToggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Edit Button */
 .editButton {
   padding: 8px 16px;

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { adminUsersApi, AdminUserListResponse } from "@/lib/api/admin";
-import { User } from "@/types/auth";
+import { User, UserRole } from "@/types/auth";
 import styles from "./page.module.css";
 
 export default function AdminUsersPage() {
@@ -27,6 +27,9 @@ export default function AdminUsersPage() {
   const [newCredits, setNewCredits] = useState("");
   const [creditReason, setCreditReason] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // 역할 변경 상태
+  const [changingRoleUserId, setChangingRoleUserId] = useState<string | null>(null);
 
   // Hydration 완료 대기
   useEffect(() => {
@@ -147,6 +150,36 @@ export default function AdminUsersPage() {
     });
   };
 
+  const handleRoleChange = async (user: User, newRole: UserRole) => {
+    // 현재 로그인한 관리자 자신의 권한은 변경 불가
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser?.id === user.id) {
+      setError("자신의 권한은 변경할 수 없습니다.");
+      return;
+    }
+
+    if (user.role === newRole) return;
+
+    const confirmMessage = newRole === "admin"
+      ? `${user.name}님을 관리자로 변경하시겠습니까?`
+      : `${user.name}님의 관리자 권한을 해제하시겠습니까?`;
+
+    if (!confirm(confirmMessage)) return;
+
+    setChangingRoleUserId(user.id);
+    setError(null);
+
+    try {
+      await adminUsersApi.updateRole(user.id, { role: newRole });
+      await fetchUsers(pagination.page, searchQuery);
+    } catch (err) {
+      console.error("역할 변경 실패:", err);
+      setError("역할 변경에 실패했습니다.");
+    } finally {
+      setChangingRoleUserId(null);
+    }
+  };
+
   // 인증 확인 전까지 로딩 표시
   if (!isAuthChecked) {
     return (
@@ -230,15 +263,31 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td>
-                      <span
-                        className={
-                          user.role === "admin"
-                            ? styles.roleAdmin
-                            : styles.roleUser
-                        }
-                      >
-                        {user.role === "admin" ? "관리자" : "일반"}
-                      </span>
+                      <div className={styles.roleCell}>
+                        <span
+                          className={
+                            user.role === "admin"
+                              ? styles.roleAdmin
+                              : styles.roleUser
+                          }
+                        >
+                          {user.role === "admin" ? "관리자" : "일반"}
+                        </span>
+                        <button
+                          className={styles.roleToggleButton}
+                          onClick={() => handleRoleChange(user, user.role === "admin" ? "user" : "admin")}
+                          disabled={changingRoleUserId === user.id}
+                          title={user.role === "admin" ? "일반으로 변경" : "관리자로 변경"}
+                        >
+                          {changingRoleUserId === user.id ? (
+                            "..."
+                          ) : user.role === "admin" ? (
+                            <DemoteIcon />
+                          ) : (
+                            <PromoteIcon />
+                          )}
+                        </button>
+                      </div>
                     </td>
                     <td>{formatDate(user.createdAt)}</td>
                     <td>
@@ -342,5 +391,23 @@ export default function AdminUsersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// 관리자 승격 아이콘
+function PromoteIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  );
+}
+
+// 관리자 해제 아이콘
+function DemoteIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
   );
 }

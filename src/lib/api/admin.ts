@@ -1,6 +1,6 @@
 import axiosInstance from "../axios";
 import { API_ENDPOINTS } from "@/constants/api";
-import { User } from "@/types/auth";
+import { User, UserRole } from "@/types/auth";
 
 // 유저 목록 응답
 export interface AdminUserListResponse {
@@ -24,6 +24,19 @@ export interface UpdateCreditsResponse {
   user: User;
   previousCredits: number;
   newCredits: number;
+  message: string;
+}
+
+// 유저 역할 변경 요청
+export interface UpdateRoleRequest {
+  role: UserRole;
+}
+
+// 유저 역할 변경 응답
+export interface UpdateRoleResponse {
+  user: User;
+  previousRole: UserRole;
+  newRole: UserRole;
   message: string;
 }
 
@@ -57,6 +70,18 @@ export const adminUsersApi = {
   ): Promise<UpdateCreditsResponse> => {
     const response = await axiosInstance.patch(
       API_ENDPOINTS.ADMIN.USERS.UPDATE_CREDITS(id),
+      data
+    );
+    return response.data;
+  },
+
+  // 유저 역할 변경
+  updateRole: async (
+    id: string,
+    data: UpdateRoleRequest
+  ): Promise<UpdateRoleResponse> => {
+    const response = await axiosInstance.patch(
+      API_ENDPOINTS.ADMIN.USERS.UPDATE_ROLE(id),
       data
     );
     return response.data;
