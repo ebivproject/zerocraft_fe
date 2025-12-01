@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 import { mypageApi } from "@/lib/api/mypage";
 import { favoritesApi } from "@/lib/api/favorites";
 import { businessPlanApi } from "@/lib/api/businessPlan";
-import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
+import { saveAs } from "file-saver";
 import styles from "./page.module.css";
 
 // 타입 정의
@@ -40,6 +40,7 @@ export default function MyPage() {
   const [favorites, setFavorites] =
     useState<FavoriteGrant[]>(FALLBACK_FAVORITES);
   const [isLoading, setIsLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // 마이페이지 데이터 로드
   const loadMypageData = useCallback(async () => {
@@ -100,19 +101,21 @@ export default function MyPage() {
   };
 
   const handleDownload = async (projectId: string, projectTitle: string) => {
-    try {
-      // 백엔드에서 사업계획서 상세 데이터 가져오기
-      const detail = await businessPlanApi.getById(projectId);
+    if (downloadingId) return; // 이미 다운로드 중이면 무시
 
-      // 프론트엔드에서 DOCX 생성 (content 필드에 BusinessPlanOutput이 저장됨)
-      if (detail.content) {
-        await downloadBusinessPlanDocxV2(detail.content, projectTitle);
-      } else {
-        throw new Error("사업계획서 데이터가 없습니다.");
-      }
+    setDownloadingId(projectId);
+    try {
+      // 백엔드에서 DOCX 파일 다운로드
+      const blob = await businessPlanApi.download(projectId, "docx");
+
+      // 파일명 생성 및 다운로드
+      const filename = `${projectTitle}.docx`;
+      saveAs(blob, filename);
     } catch (error) {
       console.error("다운로드 실패:", error);
       alert("다운로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -320,24 +323,36 @@ export default function MyPage() {
                     </div>
                     <div className={styles.projectActions}>
                       <button
-                        className={styles.downloadButtonLarge}
+                        className={`${styles.downloadButtonLarge} ${
+                          downloadingId === project.id ? styles.downloading : ""
+                        }`}
                         onClick={() =>
                           handleDownload(project.id, project.title)
                         }
+                        disabled={downloadingId !== null}
                       >
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7,10 12,15 17,10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        다운로드
+                        {downloadingId === project.id ? (
+                          <>
+                            <span className={styles.spinner} />
+                            다운로드 중...
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="7,10 12,15 17,10" />
+                              <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            다운로드
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

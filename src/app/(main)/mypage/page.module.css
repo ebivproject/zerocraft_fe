@@ -323,9 +323,35 @@
   transition: all 0.2s ease;
 }
 
-.downloadButtonLarge:hover {
+.downloadButtonLarge:hover:not(:disabled) {
   box-shadow: 0 4px 16px rgba(91, 124, 250, 0.4);
   transform: translateY(-2px);
+}
+
+.downloadButtonLarge:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.downloadButtonLarge.downloading {
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-500));
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Favorites List */
