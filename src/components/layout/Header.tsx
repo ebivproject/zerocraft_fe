@@ -59,14 +59,9 @@ export default function Header() {
               </Link>
             </>
           ) : (
-            <>
-              <Link href={ROUTES.LOGIN} className="btn btn-secondary">
-                로그인
-              </Link>
-              <Link href={ROUTES.LOGIN} className="btn btn-primary">
-                회원가입
-              </Link>
-            </>
+            <Link href={ROUTES.LOGIN} className="btn btn-primary">
+              로그인
+            </Link>
           )}
 
           <button className="btn-icon mobile-menu-btn" aria-label="메뉴">

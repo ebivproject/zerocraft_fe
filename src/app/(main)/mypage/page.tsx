@@ -8,6 +8,7 @@ import { mypageApi } from "@/lib/api/mypage";
 import { favoritesApi } from "@/lib/api/favorites";
 import { businessPlanApi } from "@/lib/api/businessPlan";
 import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
+import { BusinessPlanOutput } from "@/lib/api/businessPlan";
 import styles from "./page.module.css";
 
 // 타입 정의
@@ -41,6 +42,9 @@ export default function MyPage() {
     useState<FavoriteGrant[]>(FALLBACK_FAVORITES);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<BusinessPlanOutput | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // 마이페이지 데이터 로드
   const loadMypageData = useCallback(async () => {
@@ -141,6 +145,39 @@ export default function MyPage() {
       alert(message + " 다시 시도해주세요.");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handlePreview = async (projectId: string) => {
+    if (previewingId) return;
+
+    setPreviewingId(projectId);
+    try {
+      const response = await businessPlanApi.getById(projectId);
+
+      let businessPlanData = null;
+
+      if ((response as any)?.data?.sections?.generalStatus) {
+        businessPlanData = (response as any).data;
+      } else if ((response as any)?.content?.data?.sections?.generalStatus) {
+        businessPlanData = (response as any).content.data;
+      } else if (response?.content?.sections?.generalStatus) {
+        businessPlanData = response.content;
+      } else if ((response as any)?.sections?.generalStatus) {
+        businessPlanData = response;
+      }
+
+      if (!businessPlanData) {
+        throw new Error("사업계획서 데이터를 찾을 수 없습니다.");
+      }
+
+      setPreviewData(businessPlanData);
+      setShowPreviewModal(true);
+    } catch (error) {
+      console.error("미리보기 실패:", error);
+      alert("미리보기를 불러오는데 실패했습니다.");
+    } finally {
+      setPreviewingId(null);
     }
   };
 
@@ -339,7 +376,7 @@ export default function MyPage() {
                               : styles.statusDraft
                           }`}
                         >
-                          {project.status === "completed" ? "완료" : "작성중"}
+                          {project.status === "completed" ? "완료" : "작성완료"}
                         </span>
                         <span className={styles.projectDate}>
                           {formatDate(project.updatedAt)}
@@ -347,6 +384,29 @@ export default function MyPage() {
                       </div>
                     </div>
                     <div className={styles.projectActions}>
+                      <button
+                        className={styles.previewButton}
+                        onClick={() => handlePreview(project.id)}
+                        disabled={previewingId !== null}
+                      >
+                        {previewingId === project.id ? (
+                          <>
+                            <span className={styles.spinner} />
+                          </>
+                        ) : (
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
                       <button
                         className={`${styles.downloadButtonLarge} ${
                           downloadingId === project.id ? styles.downloading : ""
@@ -522,6 +582,120 @@ export default function MyPage() {
           </section>
         </main>
       </div>
+
+      {/* 미리보기 모달 */}
+      {showPreviewModal && previewData && (
+        <div
+          className={styles.previewModal}
+          onClick={() => setShowPreviewModal(false)}
+        >
+          <div
+            className={styles.previewModalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.previewModalHeader}>
+              <h3>{previewData.documentTitle || "사업계획서"}</h3>
+              <button
+                className={styles.previewCloseButton}
+                onClick={() => setShowPreviewModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.previewModalBody}>
+              {/* 1. 일반현황 */}
+              {previewData.sections?.generalStatus && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.generalStatus.title}</h4>
+                  <div className={styles.previewTable}>
+                    {previewData.sections.generalStatus.data && (
+                      <>
+                        <div className={styles.previewRow}>
+                          <span>기업명</span>
+                          <span>{previewData.sections.generalStatus.data.companyName || "-"}</span>
+                        </div>
+                        <div className={styles.previewRow}>
+                          <span>대표자</span>
+                          <span>{previewData.sections.generalStatus.data.representative || "-"}</span>
+                        </div>
+                        <div className={styles.previewRow}>
+                          <span>창업 아이템</span>
+                          <span>{previewData.sections.generalStatus.data.itemName || "-"}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* 2. 요약 */}
+              {previewData.sections?.summary && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.summary.title}</h4>
+                  <div className={styles.previewSubsection}>
+                    <h5>제품/서비스명</h5>
+                    <p>{previewData.sections.summary.data?.productName || "-"}</p>
+                  </div>
+                  <div className={styles.previewSubsection}>
+                    <h5>핵심 기능</h5>
+                    <p>{previewData.sections.summary.data?.itemOverview?.coreFunctions || "-"}</p>
+                  </div>
+                </section>
+              )}
+
+              {/* 3. 문제인식 */}
+              {previewData.sections?.problem && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.problem.title}</h4>
+                  {previewData.sections.problem.subSections?.map((sub, idx) => (
+                    <div key={idx} className={styles.previewSubsection}>
+                      <h5>{sub.subTitle}</h5>
+                      <p>{sub.content?.marketStatus || ""}</p>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* 4. 실현가능성 */}
+              {previewData.sections?.solution && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.solution.title}</h4>
+                  {previewData.sections.solution.subSections?.map((sub, idx) => (
+                    <div key={idx} className={styles.previewSubsection}>
+                      <h5>{sub.subTitle}</h5>
+                      <p>{sub.content?.differentiation || ""}</p>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* 5. 성장전략 */}
+              {previewData.sections?.scaleup && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.scaleup.title}</h4>
+                  {previewData.sections.scaleup.subSections?.map((sub, idx) => (
+                    <div key={idx} className={styles.previewSubsection}>
+                      <h5>{sub.subTitle}</h5>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* 6. 팀 구성 */}
+              {previewData.sections?.team && (
+                <section className={styles.previewSection}>
+                  <h4>{previewData.sections.team.title}</h4>
+                  {previewData.sections.team.subSections?.map((sub, idx) => (
+                    <div key={idx} className={styles.previewSubsection}>
+                      <h5>{sub.subTitle}</h5>
+                    </div>
+                  ))}
+                </section>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
