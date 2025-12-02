@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/context/AuthProvider";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "@/styles/globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: "StartPlan - AI 사업계획서 작성 서비스",

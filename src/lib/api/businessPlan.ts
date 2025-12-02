@@ -49,6 +49,7 @@ export interface BusinessPlanCreateRequest {
     sections: Array<{ id: string; title: string; content: string }>;
   };
   data?: BusinessPlanOutput; // 프론트엔드 WizardData 변환 결과
+  useCredit?: boolean; // 이용권 사용 여부 (백엔드에서 크레딧 차감)
 }
 
 // 사업계획서 생성 응답

@@ -4,7 +4,6 @@ import { useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { BusinessPlanOutput, businessPlanApi } from "@/lib/api/businessPlan";
-import { creditsApi } from "@/lib/api/credits";
 import { downloadBusinessPlanDocxV2 } from "@/lib/utils/docxGeneratorV2";
 import StepByStepWizard, {
   WizardData,
@@ -139,6 +138,7 @@ function WizardPageContent() {
                 : output.documentTitle || "새 사업계획서",
               grantId: searchParams.get("grantId") || undefined,
               data: output,
+              useCredit: true, // 백엔드에서 크레딧 차감
             });
             savedPlanId = savedPlan.id;
             console.log("사업계획서 저장 완료:", savedPlan.id);
@@ -147,17 +147,9 @@ function WizardPageContent() {
           }
         }
 
-        // 4. 백엔드에서 이용권 사용 (차감) - 생성 성공 후에만 차감
+        // 4. 이용권 잔액 새로고침 (백엔드에서 이미 차감됨)
         if (user) {
-          try {
-            await creditsApi.use("사업계획서 생성", savedPlanId);
-            await fetchCredits();
-          } catch (creditError) {
-            console.error("이용권 차감 실패:", creditError);
-            console.warn(
-              "이용권 차감에 실패했지만 사업계획서는 생성되었습니다."
-            );
-          }
+          await fetchCredits();
         }
 
         setResult(output);
