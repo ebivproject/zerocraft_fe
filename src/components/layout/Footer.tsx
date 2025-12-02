@@ -54,10 +54,32 @@ export default function Footer() {
                 <a href="/about">회사 소개</a>
               </li>
               <li>
-                <a href="https://blog.naver.com/careez" target="_blank" rel="noopener noreferrer">블로그</a>
+                <a
+                  href="https://blog.naver.com/careez"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  블로그
+                </a>
               </li>
             </ul>
           </div>
+        </div>
+
+        <div className="footer-business-info">
+          <p>
+            <span>대표자명: 김경태</span>
+            <span className="footer-divider">|</span>
+            <span>이메일: info@ztop.kr</span>
+          </p>
+          <p>
+            <span>주소: 서울특별시 서초구 방배선행길 12 (방배동)</span>
+          </p>
+          <p>
+            <span>사업자등록번호: 364-88-02502</span>
+            <span className="footer-divider">|</span>
+            <span>통신판매업신고번호: 제 2023-서울서초-1912 호</span>
+          </p>
         </div>
 
         <div className="footer-bottom">
