@@ -43,6 +43,10 @@ export default function AdminCouponsPage() {
   // 사용자 상세 모달
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
+  // 대량 생성 결과 모달
+  const [createdCoupons, setCreatedCoupons] = useState<Coupon[]>([]);
+  const [showCreatedModal, setShowCreatedModal] = useState(false);
+
   // Hydration 완료 대기
   useEffect(() => {
     setIsHydrated(true);
@@ -148,7 +152,9 @@ export default function AdminCouponsPage() {
         prefix: bulkFormData.prefix || undefined,
       });
 
-      alert(`${result.created}개의 쿠폰이 생성되었습니다.`);
+      // 생성된 쿠폰 목록 저장 및 모달 표시
+      setCreatedCoupons(result.coupons);
+      setShowCreatedModal(true);
 
       setBulkFormData({
         count: 10,
@@ -564,14 +570,16 @@ export default function AdminCouponsPage() {
                           className={styles.toggleButton}
                           onClick={() => handleToggleActive(coupon)}
                           disabled={isExpired}
+                          title={coupon.isActive ? "비활성화" : "활성화"}
                         >
-                          {coupon.isActive ? "비활성화" : "활성화"}
+                          {coupon.isActive ? "⏸" : "▶"}
                         </button>
                         <button
                           className={styles.deleteButton}
                           onClick={() => handleDeleteCoupon(coupon.id)}
+                          title="삭제"
                         >
-                          삭제
+                          🗑
                         </button>
                       </div>
                     </td>
@@ -640,6 +648,65 @@ export default function AdminCouponsPage() {
                   사용 내역이 없거나 상세 정보를 불러올 수 없습니다.
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 대량 생성 결과 모달 */}
+      {showCreatedModal && createdCoupons.length > 0 && (
+        <div
+          className={styles.modal}
+          onClick={() => setShowCreatedModal(false)}
+        >
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <h3>쿠폰 생성 완료</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowCreatedModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p className={styles.createdCount}>
+                {createdCoupons.length}개의 쿠폰이 생성되었습니다.
+              </p>
+
+              <div className={styles.copyAllSection}>
+                <button
+                  className={styles.copyAllButton}
+                  onClick={() => {
+                    const codes = createdCoupons.map((c) => c.code).join("\n");
+                    navigator.clipboard.writeText(codes);
+                    alert("모든 쿠폰 코드가 복사되었습니다.");
+                  }}
+                >
+                  전체 복사
+                </button>
+              </div>
+
+              <div className={styles.createdCouponsList}>
+                {createdCoupons.map((coupon, index) => (
+                  <div key={coupon.id} className={styles.createdCouponItem}>
+                    <span className={styles.couponIndex}>{index + 1}</span>
+                    <code className={styles.couponCode}>{coupon.code}</code>
+                    <button
+                      className={styles.copyButton}
+                      onClick={() => {
+                        navigator.clipboard.writeText(coupon.code);
+                        alert(`${coupon.code} 복사됨`);
+                      }}
+                    >
+                      복사
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
