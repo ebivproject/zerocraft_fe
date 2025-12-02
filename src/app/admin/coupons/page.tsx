@@ -593,9 +593,9 @@ export default function AdminCouponsPage() {
 
       {/* 사용자 상세 모달 */}
       {selectedCoupon && (
-        <div className={styles.modal} onClick={() => setSelectedCoupon(null)}>
+        <div className={styles.modalOverlay} onClick={() => setSelectedCoupon(null)}>
           <div
-            className={styles.modalContent}
+            className={styles.modal}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
@@ -656,11 +656,11 @@ export default function AdminCouponsPage() {
       {/* 대량 생성 결과 모달 */}
       {showCreatedModal && createdCoupons.length > 0 && (
         <div
-          className={styles.modal}
+          className={styles.modalOverlay}
           onClick={() => setShowCreatedModal(false)}
         >
           <div
-            className={styles.modalContent}
+            className={styles.modal}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
