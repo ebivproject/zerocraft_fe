@@ -180,6 +180,7 @@ export interface PaymentRequest {
 export interface PaymentRequestCreateRequest {
   depositorName: string;
   amount: number;
+  couponCode?: string; // 적용한 쿠폰 코드
 }
 
 // 결제 요청 목록 응답
