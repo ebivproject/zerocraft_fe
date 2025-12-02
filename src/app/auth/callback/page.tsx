@@ -22,9 +22,9 @@ function CallbackContent() {
       const state = searchParams.get("state");
       const errorParam = searchParams.get("error");
 
-      // Google에서 에러 반환한 경우
+      // 카카오에서 에러 반환한 경우
       if (errorParam) {
-        setError("Google 로그인이 취소되었습니다.");
+        setError("카카오 로그인이 취소되었습니다.");
         setTimeout(() => router.push("/login"), 2000);
         return;
       }
@@ -65,7 +65,7 @@ function CallbackContent() {
       if (code) {
         try {
           // 백엔드에 콜백 처리 요청
-          const response = await authApi.handleGoogleCallback(
+          const response = await authApi.handleKakaoCallback(
             code,
             state || undefined
           );

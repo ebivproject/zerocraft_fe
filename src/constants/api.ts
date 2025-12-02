@@ -1,7 +1,7 @@
 export const API_ENDPOINTS = {
   AUTH: {
-    GOOGLE_LOGIN: "/api/auth/google",
-    GOOGLE_CALLBACK: "/api/auth/google/callback",
+    KAKAO_LOGIN: "/api/auth/kakao",
+    KAKAO_CALLBACK: "/api/auth/kakao/callback",
     LOGOUT: "/api/auth/logout",
     ME: "/api/auth/me",
   },

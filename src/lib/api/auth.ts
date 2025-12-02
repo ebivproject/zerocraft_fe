@@ -2,29 +2,29 @@ import axiosInstance from "../axios";
 import { API_ENDPOINTS } from "@/constants/api";
 import { User } from "@/types/auth";
 
-export interface GoogleLoginResponse {
+export interface KakaoLoginResponse {
   url: string;
 }
 
-export interface GoogleCallbackResponse {
+export interface KakaoCallbackResponse {
   token: string;
   user: User;
 }
 
 export const authApi = {
-  // Google OAuth 로그인 URL 요청
-  getGoogleLoginUrl: async (): Promise<GoogleLoginResponse> => {
-    const response = await axiosInstance.get(API_ENDPOINTS.AUTH.GOOGLE_LOGIN);
+  // Kakao OAuth 로그인 URL 요청
+  getKakaoLoginUrl: async (): Promise<KakaoLoginResponse> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.AUTH.KAKAO_LOGIN);
     return response.data;
   },
 
-  // Google OAuth 콜백 처리
-  handleGoogleCallback: async (
+  // Kakao OAuth 콜백 처리
+  handleKakaoCallback: async (
     code: string,
     state?: string
-  ): Promise<GoogleCallbackResponse> => {
+  ): Promise<KakaoCallbackResponse> => {
     const response = await axiosInstance.get(
-      API_ENDPOINTS.AUTH.GOOGLE_CALLBACK,
+      API_ENDPOINTS.AUTH.KAKAO_CALLBACK,
       {
         params: { code, state },
       }

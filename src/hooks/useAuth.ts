@@ -10,10 +10,10 @@ export function useAuth() {
   const router = useRouter();
   const { user, isAuthenticated, setUser, clearUser } = useAuthStore();
 
-  // Google OAuth 로그인 시작
-  const loginWithGoogle = useCallback(async () => {
+  // Kakao OAuth 로그인 시작
+  const loginWithKakao = useCallback(async () => {
     try {
-      const response = await authApi.getGoogleLoginUrl();
+      const response = await authApi.getKakaoLoginUrl();
       window.location.href = response.url;
     } catch (error) {
       throw error;
@@ -52,7 +52,7 @@ export function useAuth() {
   return {
     user,
     isAuthenticated,
-    loginWithGoogle,
+    loginWithKakao,
     logout,
     checkAuth,
   };
