@@ -19,7 +19,7 @@ type WizardStep = "sample_preview" | "step_input" | "generating" | "complete";
 function WizardPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, addCredits, fetchCredits } = useAuthStore();
+  const { user, addCredits, fetchCredits, resetAiHints } = useAuthStore();
 
   const [step, setStep] = useState<WizardStep>("sample_preview");
   const [wizardData, setWizardData] = useState<WizardData>({});
@@ -54,9 +54,10 @@ function WizardPageContent() {
       return;
     }
 
-    // 이용권 있음 -> 전체 작성 진입
+    // 이용권 있음 -> 전체 작성 진입 (AI 힌트 리셋)
+    resetAiHints();
     setStep("step_input");
-  }, [user, router, fetchCredits]);
+  }, [user, router, fetchCredits, resetAiHints]);
 
   // 결제 완료 시 이용권 잔액 다시 조회 후 작성 진입 또는 생성 재시도
   const handlePaymentComplete = useCallback(
@@ -72,6 +73,9 @@ function WizardPageContent() {
       setShowPaymentModal(false);
       setError(null);
 
+      // 결제 완료 시 AI 힌트 리셋
+      resetAiHints();
+
       // 결제 대기 중인 완료된 데이터가 있으면 바로 생성 재시도
       if (pendingWizardData) {
         setTimeout(() => {
@@ -82,7 +86,7 @@ function WizardPageContent() {
         setStep("step_input");
       }
     },
-    [addCredits, fetchCredits, pendingWizardData]
+    [addCredits, fetchCredits, pendingWizardData, resetAiHints]
   );
 
   // 사업계획서 생성 함수
