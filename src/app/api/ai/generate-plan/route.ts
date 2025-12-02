@@ -304,26 +304,26 @@ ${inputSummary}
     ]
   },
   "budgetPhase1": {
-    "items": [{"category": "인건비", "detail": "개발자 1명×1개월", "amount": "800,000"}, {"category": "재료비", "detail": "개발 도구", "amount": "400,000"}, {"category": "외주용역비", "detail": "디자인 외주", "amount": "500,000"}, {"category": "지식재산권", "detail": "특허 출원", "amount": "300,000"}],
-    "total": "2,000,000"
+    "items": [{"category": "인건비", "detail": "개발자 1명×1개월", "amount": "8,000,000"}, {"category": "재료비", "detail": "개발 도구", "amount": "4,000,000"}, {"category": "외주용역비", "detail": "디자인 외주", "amount": "5,000,000"}, {"category": "지식재산권", "detail": "특허 출원", "amount": "3,000,000"}],
+    "total": "20,000,000"
   },
   "budgetPhase2": {
-    "items": [{"category": "인건비", "detail": "개발자 2명×1개월", "amount": "1,600,000"}, {"category": "재료비", "detail": "클라우드 서버", "amount": "500,000"}, {"category": "외주용역비", "detail": "보안 점검", "amount": "800,000"}, {"category": "마케팅비", "detail": "온라인 광고", "amount": "1,100,000"}],
-    "total": "4,000,000"
+    "items": [{"category": "인건비", "detail": "개발자 2명×1개월", "amount": "16,000,000"}, {"category": "재료비", "detail": "클라우드 서버", "amount": "5,000,000"}, {"category": "외주용역비", "detail": "보안 점검", "amount": "8,000,000"}, {"category": "마케팅비", "detail": "온라인 광고", "amount": "11,000,000"}],
+    "total": "40,000,000"
   },
   "budgetChart": {
     "title": "예산 배분 현황",
     "phase1": [
-      {"category": "인건비", "amount": 800000},
-      {"category": "재료비", "amount": 400000},
-      {"category": "외주용역비", "amount": 500000},
-      {"category": "지식재산권", "amount": 300000}
+      {"category": "인건비", "amount": 8000000},
+      {"category": "재료비", "amount": 4000000},
+      {"category": "외주용역비", "amount": 5000000},
+      {"category": "지식재산권", "amount": 3000000}
     ],
     "phase2": [
-      {"category": "인건비", "amount": 1600000},
-      {"category": "재료비", "amount": 500000},
-      {"category": "외주용역비", "amount": 800000},
-      {"category": "마케팅비", "amount": 1100000}
+      {"category": "인건비", "amount": 16000000},
+      {"category": "재료비", "amount": 5000000},
+      {"category": "외주용역비", "amount": 8000000},
+      {"category": "마케팅비", "amount": 11000000}
     ]
   }
 }`;

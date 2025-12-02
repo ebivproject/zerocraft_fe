@@ -281,14 +281,14 @@ export const WIZARD_STEPS: QuestionStep[] = [
     section: "실현 가능성",
     title: "1단계 정부지원사업비 집행계획",
     description: "1단계 정부지원사업비(2백만원 이내) 집행 계획을 작성해주세요.",
-    placeholder: "예: 인건비|개발 인력 1명×1개월|800,000",
+    placeholder: "예: 인건비|개발 인력 1명×1개월|8,000,000",
     example:
-      "인건비|개발 인력 1명×1개월|800,000\n재료비|개발 도구 구입|400,000\n외주용역비|UI/UX 디자인 외주|500,000\n지식재산권|특허 출원 비용|300,000",
+      "인건비|개발 인력 1명×1개월|8,000,000\n재료비|개발 도구 구입|4,000,000\n외주용역비|UI/UX 디자인 외주|5,000,000\n지식재산권|특허 출원 비용|3,000,000",
     minLength: 50,
     fieldType: "table",
     tableHeaders: ["비목", "산출근거", "금액(원)"],
     aiPrompt:
-      "1단계 정부지원사업비(총 200만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비 등으로 구분하세요. 합계가 200만원을 초과하면 안됩니다.",
+      "1단계 정부지원사업비(총 2000만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비 등으로 구분하세요. 합계가 2000만원을 초과하면 안됩니다.",
     outputKey: "solution.subSections[1].content.budgetPhase1",
     budgetLimit: 20000000, // 2000만원
   },
@@ -296,15 +296,15 @@ export const WIZARD_STEPS: QuestionStep[] = [
     id: "budget2",
     section: "실현 가능성",
     title: "2단계 정부지원사업비 집행계획",
-    description: "2단계 정부지원사업비(4백만원 이내) 집행 계획을 작성해주세요.",
-    placeholder: "예: 인건비|개발 인력 2명×1개월|1,600,000",
+    description: "2단계 정부지원사업비(4천만원 이내) 집행 계획을 작성해주세요.",
+    placeholder: "예: 인건비|개발 인력 2명×1개월|16,000,000",
     example:
-      "인건비|개발 인력 2명×1개월|1,600,000\n재료비|클라우드 서버 비용|500,000\n외주용역비|보안 점검 및 부하 테스트|800,000\n마케팅비|온라인 광고|1,100,000",
+      "인건비|개발 인력 2명×1개월|16,000,000\n재료비|클라우드 서버 비용|5,000,000\n외주용역비|보안 점검 및 부하 테스트|8,000,000\n마케팅비|온라인 광고|11,000,000",
     minLength: 50,
     fieldType: "table",
     tableHeaders: ["비목", "산출근거", "금액(원)"],
     aiPrompt:
-      "2단계 정부지원사업비(총 400만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비, 마케팅비 등으로 구분하세요. 합계가 400만원을 초과하면 안됩니다.",
+      "2단계 정부지원사업비(총 400만원 이내) 집행 계획을 작성해주세요. 형식: 비목|산출근거|금액. 인건비, 재료비, 외주용역비, 마케팅비 등으로 구분하세요. 합계가 4000만원을 초과하면 안됩니다.",
     outputKey: "solution.subSections[1].content.budgetPhase2",
     budgetLimit: 40000000, // 4000만원
   },
@@ -890,30 +890,44 @@ function ListInput({
   error: boolean;
 }) {
   // 줄바꿈으로 분리하여 배열로 관리
-  const items = value ? value.split("\n") : [""];
+  // 마지막 빈 항목은 유지 (사용자가 추가한 새 항목), 중간의 빈 항목만 필터링
+  const rawItems = value ? value.split("\n") : [];
+  const lastItem = rawItems[rawItems.length - 1];
+  const itemsWithoutLast = rawItems.slice(0, -1);
+  const filteredItems = itemsWithoutLast.filter((item) => item.trim() !== "");
+  // 마지막 항목 다시 추가 (빈 항목이어도 유지)
+  const items = rawItems.length > 0 ? [...filteredItems, lastItem] : [""];
+  // 모든 항목이 비어있으면 빈 입력 필드 하나만 표시
+  const displayItems =
+    items.filter((item) => item.trim() !== "").length === 0 ? [""] : items;
 
   const handleChange = (index: number, val: string) => {
-    const newItems = [...items];
+    const newItems = [...displayItems];
     newItems[index] = val;
     onChange(newItems.join("\n"));
   };
 
   const handleAdd = () => {
-    onChange([...items, ""].join("\n"));
+    // 현재 항목들에서 빈 항목 제거 후 새 빈 항목 추가
+    const currentItems = value
+      ? value.split("\n").filter((item) => item.trim() !== "")
+      : [];
+    onChange([...currentItems, ""].join("\n"));
   };
 
   const handleRemove = (index: number) => {
-    if (items.length === 1) {
+    if (displayItems.length === 1) {
       onChange("");
       return;
     }
-    const newItems = items.filter((_, i) => i !== index);
-    onChange(newItems.join("\n"));
+    const newItems = displayItems.filter((_, i) => i !== index);
+    // 빈 항목 제거 후 저장
+    onChange(newItems.filter((item) => item.trim() !== "").join("\n"));
   };
 
   return (
     <div className={styles.listInputWrapper}>
-      {items.map((item, index) => (
+      {displayItems.map((item, index) => (
         <div key={index} className={styles.listInputItem}>
           <textarea
             value={item}
