@@ -19,7 +19,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     category: "이용권",
     question: "이용권의 유효기간이 있나요?",
-    answer: "이용권의 유효기간은 무제한으로 제공됩니다.",
+    answer: "이용권의 유효기간은 3개월입니다.",
   },
   {
     category: "쿠폰",
