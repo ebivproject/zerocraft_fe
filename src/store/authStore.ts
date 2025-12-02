@@ -48,7 +48,12 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       clearUser: () => {
-        if (typeof document !== "undefined") {
+        if (typeof window !== "undefined") {
+          // 토큰 삭제
+          localStorage.removeItem("token");
+          // persist storage 삭제
+          localStorage.removeItem("auth-storage");
+          // 쿠키 삭제
           document.cookie = "token=; path=/; max-age=0";
         }
         set({
