@@ -71,8 +71,10 @@ export default function PaymentModal({
 
     try {
       const response = await couponsApi.validate(couponCode.trim());
+      console.log("쿠폰 검증 응답:", response);
 
       if (response.valid && response.coupon) {
+        console.log("쿠폰 할인금액:", response.coupon.discountAmount);
         setAppliedCoupon(response.coupon);
         setCouponError(null);
       } else {
