@@ -3,6 +3,7 @@ import { AuthProvider } from "@/context/AuthProvider";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "@/styles/globals.css";
 
 export const viewport: Viewport = {
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
+        <GoogleAnalytics />
         <ThemeProvider>
           <AuthProvider>
             <div className="page-wrapper">
