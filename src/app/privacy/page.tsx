@@ -87,7 +87,7 @@ export default function PrivacyPage() {
         <section className={styles.section}>
           <h2>8. 개인정보 보호책임자</h2>
           <p>개인정보 관련 문의는 아래 연락처로 해주시기 바랍니다.</p>
-          <p>이메일: privacy@zerocraft.io</p>
+          <p>이메일: none</p>
         </section>
       </div>
     </div>

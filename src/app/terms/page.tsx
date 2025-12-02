@@ -80,7 +80,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2>제7조 (문의)</h2>
           <p>서비스 이용에 관한 문의는 아래 연락처로 해주시기 바랍니다.</p>
-          <p>이메일: support@zerocraft.io</p>
+          <p>이메일: none</p>
         </section>
       </div>
     </div>
