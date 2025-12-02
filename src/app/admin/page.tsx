@@ -73,6 +73,17 @@ export default function AdminPage() {
       ),
     },
     {
+      title: "결제 요청 관리",
+      description: "무통장 입금 요청을 확인하고 승인합니다.",
+      href: "/admin/payments",
+      icon: (
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="20" height="14" x="2" y="5" rx="2" />
+          <line x1="2" x2="22" y1="10" y2="10" />
+        </svg>
+      ),
+    },
+    {
       title: "쿠폰 관리",
       description: "쿠폰을 생성하고 관리합니다.",
       href: "/admin/coupons",

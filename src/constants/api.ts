@@ -31,6 +31,15 @@ export const API_ENDPOINTS = {
       UPDATE_CREDITS: (id: string) => `/api/admin/users/${id}/credits`,
       UPDATE_ROLE: (id: string) => `/api/admin/users/${id}/role`,
     },
+    PAYMENT_REQUESTS: {
+      LIST: "/api/admin/payment-requests",
+      APPROVE: (id: string) => `/api/admin/payment-requests/${id}/approve`,
+      REJECT: (id: string) => `/api/admin/payment-requests/${id}/reject`,
+    },
+  },
+  PAYMENT_REQUESTS: {
+    CREATE: "/api/payment-requests",
+    MY_LIST: "/api/payment-requests/me",
   },
   BUSINESS_PLANS: {
     LIST: "/api/business-plans",

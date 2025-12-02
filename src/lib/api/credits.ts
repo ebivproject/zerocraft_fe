@@ -154,6 +154,104 @@ export const paymentsApi = {
   },
 };
 
+// ============================================================
+// 결제 요청 (수동 입금 확인) API
+// ============================================================
+
+// 결제 요청 상태
+export type PaymentRequestStatus = "pending" | "approved" | "rejected";
+
+// 결제 요청 항목
+export interface PaymentRequest {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  depositorName: string; // 입금자명
+  amount: number; // 입금 금액
+  status: PaymentRequestStatus;
+  creditsToAdd: number; // 승인 시 추가될 이용권 수
+  adminNote?: string; // 관리자 메모
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 결제 요청 생성 요청
+export interface PaymentRequestCreateRequest {
+  depositorName: string;
+  amount: number;
+}
+
+// 결제 요청 목록 응답
+export interface PaymentRequestListResponse {
+  data: PaymentRequest[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export const paymentRequestsApi = {
+  // 결제 요청 생성 (사용자)
+  create: async (data: PaymentRequestCreateRequest): Promise<PaymentRequest> => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.PAYMENT_REQUESTS.CREATE,
+      data
+    );
+    return response.data;
+  },
+
+  // 내 결제 요청 목록 조회 (사용자)
+  getMyList: async (): Promise<PaymentRequestListResponse> => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.PAYMENT_REQUESTS.MY_LIST
+    );
+    return response.data;
+  },
+};
+
+// 관리자용 결제 요청 API
+export const adminPaymentRequestsApi = {
+  // 결제 요청 목록 조회
+  list: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: PaymentRequestStatus;
+  }): Promise<PaymentRequestListResponse> => {
+    const response = await axiosInstance.get(
+      API_ENDPOINTS.ADMIN.PAYMENT_REQUESTS.LIST,
+      { params }
+    );
+    return response.data;
+  },
+
+  // 결제 요청 승인
+  approve: async (
+    id: string,
+    data?: { adminNote?: string }
+  ): Promise<PaymentRequest> => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.ADMIN.PAYMENT_REQUESTS.APPROVE(id),
+      data
+    );
+    return response.data;
+  },
+
+  // 결제 요청 거절
+  reject: async (
+    id: string,
+    data?: { adminNote?: string }
+  ): Promise<PaymentRequest> => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.ADMIN.PAYMENT_REQUESTS.REJECT(id),
+      data
+    );
+    return response.data;
+  },
+};
+
 // 쿠폰 API
 export const couponsApi = {
   // 쿠폰 검증

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { loadTossPayments, TossPaymentsPayment } from "@tosspayments/tosspayments-sdk";
-import { paymentsApi, couponsApi } from "@/lib/api/credits";
+import {
+  loadTossPayments,
+  TossPaymentsPayment,
+} from "@tosspayments/tosspayments-sdk";
+import { paymentsApi, couponsApi, paymentRequestsApi } from "@/lib/api/credits";
 import { Coupon } from "@/types/auth";
 import styles from "./PaymentModal.module.css";
 
@@ -12,8 +15,17 @@ interface PaymentModalProps {
   onPaymentComplete: (creditsAdded: number) => void;
 }
 
+type PaymentTabType = "card" | "transfer";
+
 const ORIGINAL_PRICE = 50000; // 정가
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
+
+// 입금 계좌 정보 (실제 정보로 변경 필요)
+const BANK_INFO = {
+  bankName: "하나은행",
+  accountNumber: "365-911029-24804",
+  accountHolder: "제로투앤 주식회사",
+};
 
 export default function PaymentModal({
   isOpen,
@@ -23,11 +35,18 @@ export default function PaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 결제 탭
+  const [activeTab, setActiveTab] = useState<PaymentTabType>("card");
+
   // 쿠폰 관련 상태
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  // 무통장 입금 관련 상태
+  const [depositorName, setDepositorName] = useState("");
+  const [transferSubmitted, setTransferSubmitted] = useState(false);
 
   // 토스페이먼츠
   const paymentRef = useRef<TossPaymentsPayment | null>(null);
@@ -183,6 +202,30 @@ export default function PaymentModal({
     }
   };
 
+  // 무통장 입금 요청
+  const handleTransferRequest = async () => {
+    if (!depositorName.trim()) {
+      setError("입금자명을 입력해주세요.");
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      await paymentRequestsApi.create({
+        depositorName: depositorName.trim(),
+        amount: priceInfo.finalPrice,
+      });
+      setTransferSubmitted(true);
+    } catch (err) {
+      console.error("입금 요청 오류:", err);
+      setError("입금 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // 모달 닫을 때 상태 초기화
   const handleClose = () => {
     paymentRef.current = null;
@@ -192,6 +235,9 @@ export default function PaymentModal({
     setAppliedCoupon(null);
     setCouponError(null);
     setIsProcessing(false);
+    setActiveTab("card");
+    setDepositorName("");
+    setTransferSubmitted(false);
     onClose();
   };
 
@@ -229,94 +275,201 @@ export default function PaymentModal({
             </div>
           </div>
 
-          {/* 쿠폰 입력 */}
-          <div className={styles.couponSection}>
-            <h4>쿠폰 코드</h4>
-            {appliedCoupon ? (
-              <div className={styles.appliedCoupon}>
-                <div className={styles.couponInfo}>
-                  <CouponIcon />
-                  <span className={styles.couponName}>
-                    {appliedCoupon.description || appliedCoupon.code}
-                  </span>
-                  <span className={styles.couponDiscount}>
-                    -{appliedCoupon.discountAmount.toLocaleString()}원
-                  </span>
+          {/* 결제 방식 탭 */}
+          <div className={styles.paymentTabs}>
+            <button
+              className={`${styles.paymentTab} ${
+                activeTab === "card" ? styles.active : ""
+              }`}
+              onClick={() => setActiveTab("card")}
+            >
+              카드 결제
+            </button>
+            <button
+              className={`${styles.paymentTab} ${
+                activeTab === "transfer" ? styles.active : ""
+              }`}
+              onClick={() => setActiveTab("transfer")}
+            >
+              무통장 입금
+            </button>
+          </div>
+
+          {/* 카드 결제 탭 */}
+          {activeTab === "card" && (
+            <>
+              {/* 쿠폰 입력 */}
+              <div className={styles.couponSection}>
+                <h4>쿠폰 코드</h4>
+                {appliedCoupon ? (
+                  <div className={styles.appliedCoupon}>
+                    <div className={styles.couponInfo}>
+                      <CouponIcon />
+                      <span className={styles.couponName}>
+                        {appliedCoupon.description || appliedCoupon.code}
+                      </span>
+                      <span className={styles.couponDiscount}>
+                        -{appliedCoupon.discountAmount.toLocaleString()}원
+                      </span>
+                    </div>
+                    <button
+                      className={styles.removeCouponButton}
+                      onClick={handleRemoveCoupon}
+                    >
+                      제거
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.couponInput}>
+                    <input
+                      type="text"
+                      placeholder="쿠폰 코드를 입력하세요"
+                      value={couponCode}
+                      onChange={(e) =>
+                        setCouponCode(e.target.value.toUpperCase())
+                      }
+                      disabled={isValidatingCoupon}
+                    />
+                    <button
+                      className={styles.applyCouponButton}
+                      onClick={handleApplyCoupon}
+                      disabled={isValidatingCoupon || !couponCode.trim()}
+                    >
+                      {isValidatingCoupon ? "확인 중..." : "적용"}
+                    </button>
+                  </div>
+                )}
+                {couponError && (
+                  <p className={styles.couponError}>{couponError}</p>
+                )}
+              </div>
+
+              {/* 결제 금액 */}
+              <div className={styles.summary}>
+                <div className={styles.summaryRow}>
+                  <span>상품 금액</span>
+                  <span>{ORIGINAL_PRICE.toLocaleString()}원</span>
                 </div>
-                <button
-                  className={styles.removeCouponButton}
-                  onClick={handleRemoveCoupon}
-                >
-                  제거
-                </button>
+                {priceInfo.discountAmount > 0 && (
+                  <div className={styles.summaryRow}>
+                    <span>쿠폰 할인</span>
+                    <span className={styles.discount}>
+                      -{priceInfo.discountAmount.toLocaleString()}원
+                    </span>
+                  </div>
+                )}
+                <div className={`${styles.summaryRow} ${styles.total}`}>
+                  <span>결제 금액</span>
+                  <span>{priceInfo.finalPrice.toLocaleString()}원</span>
+                </div>
               </div>
-            ) : (
-              <div className={styles.couponInput}>
-                <input
-                  type="text"
-                  placeholder="쿠폰 코드를 입력하세요"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  disabled={isValidatingCoupon}
-                />
-                <button
-                  className={styles.applyCouponButton}
-                  onClick={handleApplyCoupon}
-                  disabled={isValidatingCoupon || !couponCode.trim()}
-                >
-                  {isValidatingCoupon ? "확인 중..." : "적용"}
-                </button>
-              </div>
-            )}
-            {couponError && (
-              <p className={styles.couponError}>{couponError}</p>
-            )}
-          </div>
 
-          {/* 결제 금액 */}
-          <div className={styles.summary}>
-            <div className={styles.summaryRow}>
-              <span>상품 금액</span>
-              <span>{ORIGINAL_PRICE.toLocaleString()}원</span>
+              {/* 에러 메시지 */}
+              {error && <div className={styles.errorMessage}>{error}</div>}
+
+              {/* 결제 버튼 */}
+              <button
+                className={styles.payButton}
+                onClick={handlePayment}
+                disabled={
+                  isProcessing || (priceInfo.finalPrice > 0 && !isPaymentReady)
+                }
+              >
+                {isProcessing ? (
+                  <>
+                    <SpinnerIcon />
+                    결제 처리 중...
+                  </>
+                ) : priceInfo.finalPrice === 0 ? (
+                  <>무료로 이용권 받기</>
+                ) : (
+                  <>{priceInfo.finalPrice.toLocaleString()}원 결제하기</>
+                )}
+              </button>
+
+              <p className={styles.notice}>
+                결제 완료 후 바로 AI 사업계획서 생성이 시작됩니다.
+              </p>
+            </>
+          )}
+
+          {/* 무통장 입금 탭 */}
+          {activeTab === "transfer" && (
+            <div className={styles.bankTransferSection}>
+              {transferSubmitted ? (
+                <div className={styles.successMessage}>
+                  <h4>입금 확인 요청이 접수되었습니다</h4>
+                  <p>
+                    입금 확인 후 이용권이 지급됩니다.
+                    <br />
+                    영업일 기준 1-2일 내에 처리됩니다.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* 계좌 정보 */}
+                  <div className={styles.bankInfo}>
+                    <h4>입금 계좌 정보</h4>
+                    <div className={styles.bankDetail}>
+                      <span>은행명</span>
+                      <span>{BANK_INFO.bankName}</span>
+                    </div>
+                    <div className={styles.bankDetail}>
+                      <span>계좌번호</span>
+                      <span>{BANK_INFO.accountNumber}</span>
+                    </div>
+                    <div className={styles.bankDetail}>
+                      <span>예금주</span>
+                      <span>{BANK_INFO.accountHolder}</span>
+                    </div>
+                    <div className={styles.bankDetail}>
+                      <span>입금 금액</span>
+                      <span>{priceInfo.finalPrice.toLocaleString()}원</span>
+                    </div>
+                  </div>
+
+                  {/* 입금자명 입력 */}
+                  <div className={styles.transferForm}>
+                    <div>
+                      <label>입금자명</label>
+                      <input
+                        type="text"
+                        placeholder="실제 입금하실 분의 성함을 입력하세요"
+                        value={depositorName}
+                        onChange={(e) => setDepositorName(e.target.value)}
+                        disabled={isProcessing}
+                      />
+                    </div>
+
+                    <div className={styles.transferNotice}>
+                      입금 후 관리자 확인이 완료되면 이용권이 지급됩니다.
+                      <br />
+                      입금자명이 다를 경우 확인이 지연될 수 있습니다.
+                    </div>
+                  </div>
+
+                  {/* 에러 메시지 */}
+                  {error && <div className={styles.errorMessage}>{error}</div>}
+
+                  {/* 입금 확인 요청 버튼 */}
+                  <button
+                    className={styles.requestButton}
+                    onClick={handleTransferRequest}
+                    disabled={isProcessing || !depositorName.trim()}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <SpinnerIcon />
+                        요청 중...
+                      </>
+                    ) : (
+                      <>입금 확인 요청</>
+                    )}
+                  </button>
+                </>
+              )}
             </div>
-            {priceInfo.discountAmount > 0 && (
-              <div className={styles.summaryRow}>
-                <span>쿠폰 할인</span>
-                <span className={styles.discount}>
-                  -{priceInfo.discountAmount.toLocaleString()}원
-                </span>
-              </div>
-            )}
-            <div className={`${styles.summaryRow} ${styles.total}`}>
-              <span>결제 금액</span>
-              <span>{priceInfo.finalPrice.toLocaleString()}원</span>
-            </div>
-          </div>
-
-          {/* 에러 메시지 */}
-          {error && <div className={styles.errorMessage}>{error}</div>}
-
-          {/* 결제 버튼 */}
-          <button
-            className={styles.payButton}
-            onClick={handlePayment}
-            disabled={isProcessing || (priceInfo.finalPrice > 0 && !isPaymentReady)}
-          >
-            {isProcessing ? (
-              <>
-                <SpinnerIcon />
-                결제 처리 중...
-              </>
-            ) : priceInfo.finalPrice === 0 ? (
-              <>무료로 이용권 받기</>
-            ) : (
-              <>{priceInfo.finalPrice.toLocaleString()}원 결제하기</>
-            )}
-          </button>
-
-          <p className={styles.notice}>
-            결제 완료 후 바로 AI 사업계획서 생성이 시작됩니다.
-          </p>
+          )}
         </div>
       </div>
     </div>
