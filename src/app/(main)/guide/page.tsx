@@ -16,8 +16,8 @@ export default function GuidePage() {
           <div className={styles.stepContent}>
             <h2 className={styles.stepTitle}>회원가입 및 로그인</h2>
             <p className={styles.stepDescription}>
-              StartPlan 서비스를 이용하려면 먼저 회원가입이 필요합니다.
-              이메일과 비밀번호로 간편하게 가입할 수 있습니다.
+              StartPlan 서비스를 이용하려면 먼저 회원가입이 필요합니다. 이메일과
+              비밀번호로 간편하게 가입할 수 있습니다.
             </p>
             <ul className={styles.stepList}>
               <li>우측 상단의 &apos;로그인&apos; 버튼을 클릭합니다</li>
@@ -32,8 +32,8 @@ export default function GuidePage() {
           <div className={styles.stepContent}>
             <h2 className={styles.stepTitle}>이용권 구매</h2>
             <p className={styles.stepDescription}>
-              AI 사업계획서를 생성하려면 이용권이 필요합니다.
-              이용권 1매로 사업계획서 1회를 생성할 수 있습니다.
+              AI 사업계획서를 생성하려면 이용권이 필요합니다. 이용권 1매로
+              사업계획서 1회를 생성할 수 있습니다.
             </p>
             <ul className={styles.stepList}>
               <li>상단 메뉴의 &apos;가격&apos;을 클릭합니다</li>
@@ -49,13 +49,24 @@ export default function GuidePage() {
           <div className={styles.stepContent}>
             <h2 className={styles.stepTitle}>사업계획서 작성</h2>
             <p className={styles.stepDescription}>
-              단계별 질문에 답변하면 AI가 전문적인 사업계획서를 자동으로 생성합니다.
+              단계별 질문에 답변하면 AI가 전문적인 사업계획서를 자동으로
+              생성합니다.
             </p>
             <ul className={styles.stepList}>
-              <li>메인 페이지에서 &apos;AI 사업계획서 시작&apos; 버튼을 클릭합니다</li>
-              <li>회사 정보, 아이템 개요, 문제 인식, 솔루션, 성장 전략, 팀 구성 순으로 정보를 입력합니다</li>
-              <li>각 단계에서 &apos;AI 힌트&apos; 버튼을 활용하면 작성에 도움을 받을 수 있습니다</li>
-              <li>모든 정보 입력 후 &apos;사업계획서 생성&apos; 버튼을 클릭합니다</li>
+              <li>
+                메인 페이지에서 &apos;AI 사업계획서 시작&apos; 버튼을 클릭합니다
+              </li>
+              <li>
+                회사 정보, 아이템 개요, 문제 인식, 솔루션, 성장 전략, 팀 구성
+                순으로 정보를 입력합니다
+              </li>
+              <li>
+                각 단계에서 &apos;AI 힌트&apos; 버튼을 활용하면 작성에 도움을
+                받을 수 있습니다
+              </li>
+              <li>
+                모든 정보 입력 후 &apos;사업계획서 생성&apos; 버튼을 클릭합니다
+              </li>
             </ul>
           </div>
         </div>
@@ -69,8 +80,13 @@ export default function GuidePage() {
             </p>
             <ul className={styles.stepList}>
               <li>사업계획서 생성이 완료되면 미리보기가 표시됩니다</li>
-              <li>&apos;다운로드&apos; 버튼을 클릭하여 DOCX 파일을 저장합니다</li>
-              <li>마이페이지에서 이전에 생성한 사업계획서를 다시 다운로드할 수 있습니다</li>
+              <li>
+                &apos;다운로드&apos; 버튼을 클릭하여 DOCX 파일을 저장합니다
+              </li>
+              <li>
+                마이페이지에서 이전에 생성한 사업계획서를 다시 다운로드할 수
+                있습니다
+              </li>
             </ul>
           </div>
         </div>
@@ -80,10 +96,11 @@ export default function GuidePage() {
           <div className={styles.stepContent}>
             <h2 className={styles.stepTitle}>사업계획서 수정 및 제출</h2>
             <p className={styles.stepDescription}>
-              다운로드한 사업계획서를 검토하고 필요한 부분을 수정하여 지원사업에 제출하세요.
+              다운로드한 사업계획서를 검토하고 필요한 부분을 수정하여 지원사업에
+              제출하세요.
             </p>
             <ul className={styles.stepList}>
-              <li>다운로드한 DOCX 파일을 Microsoft Word나 한글에서 엽니다</li>
+              <li>다운로드한 DOCX 파일을 Microsoft Word에서 엽니다</li>
               <li>내용을 검토하고 필요한 부분을 수정합니다</li>
               <li>지원사업 공고의 양식에 맞게 조정합니다</li>
               <li>최종 검토 후 지원사업에 제출합니다</li>
@@ -102,4 +119,3 @@ export default function GuidePage() {
     </div>
   );
 }
-
