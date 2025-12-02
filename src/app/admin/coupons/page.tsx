@@ -9,30 +9,46 @@ import styles from "./page.module.css";
 
 export default function AdminCouponsPage() {
   const router = useRouter();
-  // useAuthStore는 getState()로만 사용
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
-  // 쿠폰 생성 폼 상태
+  // 쿠폰 생성 모드: "single" | "bulk"
+  const [createMode, setCreateMode] = useState<"single" | "bulk">("bulk");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formData, setFormData] = useState({
+
+  // 단일 쿠폰 생성 폼
+  const [singleFormData, setSingleFormData] = useState({
     code: "",
     discountAmount: 30000,
     expiresAt: "",
-    maxUses: "",
+    maxUses: "1",
     description: "",
   });
+
+  // 대량 쿠폰 생성 폼
+  const [bulkFormData, setBulkFormData] = useState({
+    count: 10,
+    discountAmount: 30000,
+    expiresAt: "",
+    maxUses: 1,
+    description: "",
+    prefix: "",
+  });
+
   const [isCreating, setIsCreating] = useState(false);
+
+  // 사용자 상세 모달
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
   // Hydration 완료 대기
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // 권한 체크 (hydration 완료 후, API에서 최신 정보 확인)
+  // 권한 체크
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -43,12 +59,11 @@ export default function AdminCouponsPage() {
         return;
       }
 
-      // API에서 최신 사용자 정보 가져오기
       try {
         const { fetchMe } = useAuthStore.getState();
         await fetchMe();
       } catch {
-        // fetchMe 실패 시 무시 (내부에서 처리됨)
+        // fetchMe 실패 시 무시
       }
 
       const currentUser = useAuthStore.getState().user;
@@ -83,35 +98,71 @@ export default function AdminCouponsPage() {
     }
   };
 
-  const handleCreateCoupon = async (e: React.FormEvent) => {
+  // 단일 쿠폰 생성
+  const handleCreateSingleCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
     setError(null);
 
     try {
       await couponsApi.create({
-        code: formData.code.toUpperCase(),
-        discountAmount: formData.discountAmount,
-        expiresAt: new Date(formData.expiresAt).toISOString(),
-        maxUses: formData.maxUses ? parseInt(formData.maxUses) : undefined,
-        description: formData.description || undefined,
+        code: singleFormData.code.toUpperCase(),
+        discountAmount: singleFormData.discountAmount,
+        expiresAt: new Date(singleFormData.expiresAt).toISOString(),
+        maxUses: singleFormData.maxUses
+          ? parseInt(singleFormData.maxUses)
+          : undefined,
+        description: singleFormData.description || undefined,
       });
 
-      // 폼 초기화
-      setFormData({
+      setSingleFormData({
         code: "",
         discountAmount: 30000,
         expiresAt: "",
-        maxUses: "",
+        maxUses: "1",
         description: "",
       });
       setShowCreateForm(false);
-
-      // 목록 새로고침
       fetchCoupons();
     } catch (err) {
       console.error("쿠폰 생성 실패:", err);
       setError("쿠폰 생성에 실패했습니다.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // 대량 쿠폰 생성
+  const handleCreateBulkCoupons = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreating(true);
+    setError(null);
+
+    try {
+      const result = await couponsApi.bulkCreate({
+        count: bulkFormData.count,
+        discountAmount: bulkFormData.discountAmount,
+        expiresAt: new Date(bulkFormData.expiresAt).toISOString(),
+        maxUses: bulkFormData.maxUses || undefined,
+        description: bulkFormData.description || undefined,
+        prefix: bulkFormData.prefix || undefined,
+      });
+
+      alert(`${result.created}개의 쿠폰이 생성되었습니다.`);
+
+      setBulkFormData({
+        count: 10,
+        discountAmount: 30000,
+        expiresAt: "",
+        maxUses: 1,
+        description: "",
+        prefix: "",
+      });
+      setShowCreateForm(false);
+      fetchCoupons();
+    } catch (err) {
+      console.error("쿠폰 대량 생성 실패:", err);
+      setError("쿠폰 대량 생성에 실패했습니다.");
     } finally {
       setIsCreating(false);
     }
@@ -145,10 +196,16 @@ export default function AdminCouponsPage() {
     for (let i = 0; i < 8; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    setFormData((prev) => ({ ...prev, code }));
+    setSingleFormData((prev) => ({ ...prev, code }));
   };
 
-  // 인증 확인 전까지 로딩 표시
+  // 기본 만료일 설정 (30일 후)
+  const getDefaultExpiresAt = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+    return date.toISOString().slice(0, 16);
+  };
+
   if (!isAuthChecked) {
     return (
       <div className={styles.container}>
@@ -162,11 +219,27 @@ export default function AdminCouponsPage() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>쿠폰 관리</h1>
-          <p className={styles.subtitle}>쿠폰을 생성하고 관리합니다.</p>
+          <p className={styles.subtitle}>
+            할인 쿠폰을 생성하고 사용 현황을 관리합니다.
+          </p>
         </div>
         <button
           className={styles.createButton}
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={() => {
+            setShowCreateForm(!showCreateForm);
+            if (!bulkFormData.expiresAt) {
+              setBulkFormData((prev) => ({
+                ...prev,
+                expiresAt: getDefaultExpiresAt(),
+              }));
+            }
+            if (!singleFormData.expiresAt) {
+              setSingleFormData((prev) => ({
+                ...prev,
+                expiresAt: getDefaultExpiresAt(),
+              }));
+            }
+          }}
         >
           {showCreateForm ? "취소" : "+ 쿠폰 생성"}
         </button>
@@ -176,103 +249,245 @@ export default function AdminCouponsPage() {
 
       {/* 쿠폰 생성 폼 */}
       {showCreateForm && (
-        <form className={styles.createForm} onSubmit={handleCreateCoupon}>
-          <h3>새 쿠폰 생성</h3>
+        <div className={styles.createForm}>
+          <div className={styles.modeToggle}>
+            <button
+              className={`${styles.modeButton} ${createMode === "bulk" ? styles.active : ""}`}
+              onClick={() => setCreateMode("bulk")}
+            >
+              대량 생성
+            </button>
+            <button
+              className={`${styles.modeButton} ${createMode === "single" ? styles.active : ""}`}
+              onClick={() => setCreateMode("single")}
+            >
+              단일 생성
+            </button>
+          </div>
 
-          <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label>쿠폰 코드</label>
-              <div className={styles.codeInput}>
-                <input
-                  type="text"
-                  value={formData.code}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      code: e.target.value.toUpperCase(),
-                    }))
-                  }
-                  placeholder="예: WELCOME2024"
-                  required
-                />
-                <button type="button" onClick={generateRandomCode}>
-                  자동 생성
+          {createMode === "bulk" ? (
+            <form onSubmit={handleCreateBulkCoupons}>
+              <h3>쿠폰 대량 생성</h3>
+              <p className={styles.formHint}>
+                랜덤 코드가 자동 생성됩니다. 각 쿠폰은 1회만 사용 가능합니다.
+              </p>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>생성 개수</label>
+                  <input
+                    type="number"
+                    value={bulkFormData.count}
+                    onChange={(e) =>
+                      setBulkFormData((prev) => ({
+                        ...prev,
+                        count: parseInt(e.target.value) || 1,
+                      }))
+                    }
+                    min="1"
+                    max="100"
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>할인 금액 (원)</label>
+                  <input
+                    type="number"
+                    value={bulkFormData.discountAmount}
+                    onChange={(e) =>
+                      setBulkFormData((prev) => ({
+                        ...prev,
+                        discountAmount: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    min="1000"
+                    step="1000"
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>유효기간</label>
+                  <input
+                    type="datetime-local"
+                    value={bulkFormData.expiresAt}
+                    onChange={(e) =>
+                      setBulkFormData((prev) => ({
+                        ...prev,
+                        expiresAt: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>코드 접두사 (선택)</label>
+                  <input
+                    type="text"
+                    value={bulkFormData.prefix}
+                    onChange={(e) =>
+                      setBulkFormData((prev) => ({
+                        ...prev,
+                        prefix: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    placeholder="예: WELCOME"
+                    maxLength={10}
+                  />
+                </div>
+
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label>설명</label>
+                  <input
+                    type="text"
+                    value={bulkFormData.description}
+                    onChange={(e) =>
+                      setBulkFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="예: 12월 프로모션 쿠폰"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={isCreating}
+                >
+                  {isCreating
+                    ? "생성 중..."
+                    : `${bulkFormData.count}개 쿠폰 생성`}
                 </button>
               </div>
-            </div>
+            </form>
+          ) : (
+            <form onSubmit={handleCreateSingleCoupon}>
+              <h3>단일 쿠폰 생성</h3>
 
-            <div className={styles.formGroup}>
-              <label>할인 금액 (원)</label>
-              <input
-                type="number"
-                value={formData.discountAmount}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    discountAmount: parseInt(e.target.value) || 0,
-                  }))
-                }
-                min="1000"
-                step="1000"
-                required
-              />
-            </div>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>쿠폰 코드</label>
+                  <div className={styles.codeInput}>
+                    <input
+                      type="text"
+                      value={singleFormData.code}
+                      onChange={(e) =>
+                        setSingleFormData((prev) => ({
+                          ...prev,
+                          code: e.target.value.toUpperCase(),
+                        }))
+                      }
+                      placeholder="예: WELCOME2024"
+                      required
+                    />
+                    <button type="button" onClick={generateRandomCode}>
+                      자동 생성
+                    </button>
+                  </div>
+                </div>
 
-            <div className={styles.formGroup}>
-              <label>유효기간</label>
-              <input
-                type="datetime-local"
-                value={formData.expiresAt}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, expiresAt: e.target.value }))
-                }
-                required
-              />
-            </div>
+                <div className={styles.formGroup}>
+                  <label>할인 금액 (원)</label>
+                  <input
+                    type="number"
+                    value={singleFormData.discountAmount}
+                    onChange={(e) =>
+                      setSingleFormData((prev) => ({
+                        ...prev,
+                        discountAmount: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    min="1000"
+                    step="1000"
+                    required
+                  />
+                </div>
 
-            <div className={styles.formGroup}>
-              <label>최대 사용 횟수 (비워두면 무제한)</label>
-              <input
-                type="number"
-                value={formData.maxUses}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, maxUses: e.target.value }))
-                }
-                min="1"
-                placeholder="무제한"
-              />
-            </div>
+                <div className={styles.formGroup}>
+                  <label>유효기간</label>
+                  <input
+                    type="datetime-local"
+                    value={singleFormData.expiresAt}
+                    onChange={(e) =>
+                      setSingleFormData((prev) => ({
+                        ...prev,
+                        expiresAt: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
 
-            <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
-              <label>설명</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, description: e.target.value }))
-                }
-                placeholder="예: 신규 가입 환영 쿠폰"
-              />
-            </div>
-          </div>
+                <div className={styles.formGroup}>
+                  <label>최대 사용 횟수</label>
+                  <input
+                    type="number"
+                    value={singleFormData.maxUses}
+                    onChange={(e) =>
+                      setSingleFormData((prev) => ({
+                        ...prev,
+                        maxUses: e.target.value,
+                      }))
+                    }
+                    min="1"
+                    placeholder="1"
+                  />
+                </div>
 
-          <div className={styles.formActions}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={() => setShowCreateForm(false)}
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={isCreating}
-            >
-              {isCreating ? "생성 중..." : "쿠폰 생성"}
-            </button>
-          </div>
-        </form>
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label>설명</label>
+                  <input
+                    type="text"
+                    value={singleFormData.description}
+                    onChange={(e) =>
+                      setSingleFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="예: 신규 가입 환영 쿠폰"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={isCreating}
+                >
+                  {isCreating ? "생성 중..." : "쿠폰 생성"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       )}
 
       {/* 쿠폰 목록 */}
@@ -288,7 +503,7 @@ export default function AdminCouponsPage() {
                 <th>코드</th>
                 <th>설명</th>
                 <th>할인 금액</th>
-                <th>사용/최대</th>
+                <th>사용 현황</th>
                 <th>유효기간</th>
                 <th>상태</th>
                 <th>관리</th>
@@ -303,7 +518,9 @@ export default function AdminCouponsPage() {
                 return (
                   <tr
                     key={coupon.id}
-                    className={!coupon.isActive || isExpired ? styles.inactive : ""}
+                    className={
+                      !coupon.isActive || isExpired ? styles.inactive : ""
+                    }
                   >
                     <td>
                       <code className={styles.couponCode}>{coupon.code}</code>
@@ -313,8 +530,17 @@ export default function AdminCouponsPage() {
                       -{coupon.discountAmount.toLocaleString()}원
                     </td>
                     <td>
-                      {coupon.usedCount}
-                      {coupon.maxUses ? `/${coupon.maxUses}` : "/∞"}
+                      <button
+                        className={styles.usageButton}
+                        onClick={() => setSelectedCoupon(coupon)}
+                        disabled={coupon.usedCount === 0}
+                      >
+                        {coupon.usedCount}
+                        {coupon.maxUses ? `/${coupon.maxUses}` : "/∞"}
+                        {coupon.usedCount > 0 && (
+                          <span className={styles.viewIcon}>👁</span>
+                        )}
+                      </button>
                     </td>
                     <td>
                       <span className={isExpired ? styles.expired : ""}>
@@ -356,6 +582,68 @@ export default function AdminCouponsPage() {
           </table>
         )}
       </div>
+
+      {/* 사용자 상세 모달 */}
+      {selectedCoupon && (
+        <div className={styles.modal} onClick={() => setSelectedCoupon(null)}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <h3>쿠폰 사용 내역</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setSelectedCoupon(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.couponInfo}>
+                <p>
+                  <strong>코드:</strong> <code>{selectedCoupon.code}</code>
+                </p>
+                <p>
+                  <strong>할인 금액:</strong>{" "}
+                  {selectedCoupon.discountAmount.toLocaleString()}원
+                </p>
+                <p>
+                  <strong>사용 횟수:</strong> {selectedCoupon.usedCount}
+                  {selectedCoupon.maxUses ? `/${selectedCoupon.maxUses}` : ""}
+                </p>
+              </div>
+
+              {selectedCoupon.usedBy && selectedCoupon.usedBy.length > 0 ? (
+                <table className={styles.usageTable}>
+                  <thead>
+                    <tr>
+                      <th>사용자</th>
+                      <th>이메일</th>
+                      <th>사용 일시</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedCoupon.usedBy.map((usage, index) => (
+                      <tr key={index}>
+                        <td>{usage.userName}</td>
+                        <td>{usage.userEmail}</td>
+                        <td>
+                          {new Date(usage.usedAt).toLocaleString("ko-KR")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className={styles.noUsage}>
+                  사용 내역이 없거나 상세 정보를 불러올 수 없습니다.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

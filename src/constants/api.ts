@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
     VALIDATE: "/api/coupons/validate",
     LIST: "/api/coupons",
     CREATE: "/api/coupons",
+    BULK_CREATE: "/api/coupons/bulk",
     UPDATE: (id: string) => `/api/coupons/${id}`,
     DELETE: (id: string) => `/api/coupons/${id}`,
   },

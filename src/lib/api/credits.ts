@@ -1,6 +1,12 @@
 import axiosInstance from "../axios";
 import { API_ENDPOINTS } from "@/constants/api";
-import { Coupon, CouponValidateResponse, CouponCreateRequest } from "@/types/auth";
+import {
+  Coupon,
+  CouponValidateResponse,
+  CouponCreateRequest,
+  CouponBulkCreateRequest,
+  CouponBulkCreateResponse,
+} from "@/types/auth";
 
 // 이용권 잔액 응답
 export interface CreditsBalanceResponse {
@@ -179,5 +185,16 @@ export const couponsApi = {
   // 쿠폰 삭제 (어드민용)
   delete: async (id: string): Promise<void> => {
     await axiosInstance.delete(API_ENDPOINTS.COUPONS.DELETE(id));
+  },
+
+  // 쿠폰 대량 생성 (어드민용)
+  bulkCreate: async (
+    data: CouponBulkCreateRequest
+  ): Promise<CouponBulkCreateResponse> => {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.COUPONS.BULK_CREATE,
+      data
+    );
+    return response.data;
   },
 };
