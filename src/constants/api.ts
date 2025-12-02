@@ -17,11 +17,11 @@ export const API_ENDPOINTS = {
   },
   COUPONS: {
     VALIDATE: "/api/coupons/validate",
-    LIST: "/api/admin/coupons",
-    CREATE: "/api/admin/coupons",
-    BULK_CREATE: "/api/admin/coupons/bulk",
-    UPDATE: (id: string) => `/api/admin/coupons/${id}`,
-    DELETE: (id: string) => `/api/admin/coupons/${id}`,
+    LIST: "/api/coupons",
+    CREATE: "/api/coupons",
+    BULK_CREATE: "/api/coupons/bulk",
+    UPDATE: (id: string) => `/api/coupons/${id}`,
+    DELETE: (id: string) => `/api/coupons/${id}`,
   },
   ADMIN: {
     COUPONS: "/api/admin/coupons",
