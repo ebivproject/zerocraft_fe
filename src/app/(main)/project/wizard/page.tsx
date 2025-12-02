@@ -203,12 +203,6 @@ function WizardPageContent() {
     setPendingWizardData(null);
   }, []);
 
-  // 다시 수정하기
-  const handleEdit = useCallback(() => {
-    setStep("step_input");
-    setResult(null);
-  }, []);
-
   // 서브타이틀 텍스트
   const getSubtitle = () => {
     switch (step) {
@@ -287,9 +281,6 @@ function WizardPageContent() {
                 onClick={handleDownload}
               >
                 Word 파일 다운로드
-              </button>
-              <button className={styles.editButton} onClick={handleEdit}>
-                내용 수정하기
               </button>
               <button className={styles.resetButton} onClick={handleReset}>
                 새로 작성하기
