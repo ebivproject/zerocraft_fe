@@ -16,7 +16,7 @@ const ORIGINAL_PRICE = 50000; // 정가
 // 입금 계좌 정보
 const BANK_INFO = {
   bankName: "하나은행",
-  accountNumber: "365-911029-24804",
+  accountNumber: "365-910029-24804",
   accountHolder: "제로투앤 주식회사",
 };
 
