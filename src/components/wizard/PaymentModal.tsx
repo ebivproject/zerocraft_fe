@@ -147,27 +147,6 @@ export default function PaymentModal({
         </div>
 
         <div className={styles.content}>
-          {/* 상품 정보 */}
-          <div className={styles.productInfo}>
-            <div className={styles.productIcon}>
-              <DocumentIcon />
-            </div>
-            <div className={styles.productDetails}>
-              <h3>AI 사업계획서 생성</h3>
-              <p>정부지원사업 맞춤형 사업계획서</p>
-            </div>
-            <div className={styles.productPrice}>
-              {priceInfo.couponApplied && (
-                <span className={styles.originalPrice}>
-                  {ORIGINAL_PRICE.toLocaleString()}원
-                </span>
-              )}
-              <span className={styles.finalPrice}>
-                {priceInfo.finalPrice.toLocaleString()}원
-              </span>
-            </div>
-          </div>
-
           {transferSubmitted ? (
             <div className={styles.successMessage}>
               <h4>입금 확인 요청이 접수되었습니다</h4>
@@ -178,129 +157,144 @@ export default function PaymentModal({
               </p>
             </div>
           ) : (
-            <>
-              {/* 쿠폰 입력 */}
-              <div className={styles.couponSection}>
-                <h4>쿠폰 코드</h4>
-                {appliedCoupon ? (
-                  <div className={styles.appliedCoupon}>
-                    <div className={styles.couponInfo}>
-                      <CouponIcon />
-                      <span className={styles.couponName}>
-                        {appliedCoupon.description || appliedCoupon.code}
-                      </span>
-                      <span className={styles.couponDiscount}>
-                        -{appliedCoupon.discountAmount.toLocaleString()}원
+            <div className={styles.twoColumnLayout}>
+              {/* 왼쪽: 상품 정보 + 쿠폰 + 결제 금액 */}
+              <div className={styles.leftColumn}>
+                {/* 상품 정보 */}
+                <div className={styles.productInfo}>
+                  <div className={styles.productIcon}>
+                    <DocumentIcon />
+                  </div>
+                  <div className={styles.productDetails}>
+                    <h3>AI 사업계획서 생성</h3>
+                    <p>정부지원사업 맞춤형 사업계획서</p>
+                  </div>
+                </div>
+
+                {/* 쿠폰 입력 */}
+                <div className={styles.couponSection}>
+                  <h4>쿠폰 코드</h4>
+                  {appliedCoupon ? (
+                    <div className={styles.appliedCoupon}>
+                      <div className={styles.couponInfo}>
+                        <CouponIcon />
+                        <span className={styles.couponName}>
+                          {appliedCoupon.description || appliedCoupon.code}
+                        </span>
+                        <span className={styles.couponDiscount}>
+                          -{appliedCoupon.discountAmount.toLocaleString()}원
+                        </span>
+                      </div>
+                      <button
+                        className={styles.removeCouponButton}
+                        onClick={handleRemoveCoupon}
+                      >
+                        제거
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.couponInput}>
+                      <input
+                        type="text"
+                        placeholder="쿠폰 코드 입력"
+                        value={couponCode}
+                        onChange={(e) =>
+                          setCouponCode(e.target.value.toUpperCase())
+                        }
+                        disabled={isValidatingCoupon}
+                      />
+                      <button
+                        className={styles.applyCouponButton}
+                        onClick={handleApplyCoupon}
+                        disabled={isValidatingCoupon || !couponCode.trim()}
+                      >
+                        {isValidatingCoupon ? "..." : "적용"}
+                      </button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className={styles.couponError}>{couponError}</p>
+                  )}
+                </div>
+
+                {/* 결제 금액 */}
+                <div className={styles.summary}>
+                  <div className={styles.summaryRow}>
+                    <span>상품 금액</span>
+                    <span>{ORIGINAL_PRICE.toLocaleString()}원</span>
+                  </div>
+                  {priceInfo.discountAmount > 0 && (
+                    <div className={styles.summaryRow}>
+                      <span>쿠폰 할인</span>
+                      <span className={styles.discount}>
+                        -{priceInfo.discountAmount.toLocaleString()}원
                       </span>
                     </div>
-                    <button
-                      className={styles.removeCouponButton}
-                      onClick={handleRemoveCoupon}
-                    >
-                      제거
-                    </button>
+                  )}
+                  <div className={`${styles.summaryRow} ${styles.total}`}>
+                    <span>입금 금액</span>
+                    <span>{priceInfo.finalPrice.toLocaleString()}원</span>
                   </div>
-                ) : (
-                  <div className={styles.couponInput}>
+                </div>
+              </div>
+
+              {/* 오른쪽: 계좌 정보 + 입금자명 + 버튼 */}
+              <div className={styles.rightColumn}>
+                {/* 계좌 정보 */}
+                <div className={styles.bankInfo}>
+                  <h4>입금 계좌 정보</h4>
+                  <div className={styles.bankDetail}>
+                    <span>은행명</span>
+                    <span>{BANK_INFO.bankName}</span>
+                  </div>
+                  <div className={styles.bankDetail}>
+                    <span>계좌번호</span>
+                    <span>{BANK_INFO.accountNumber}</span>
+                  </div>
+                  <div className={styles.bankDetail}>
+                    <span>예금주</span>
+                    <span>{BANK_INFO.accountHolder}</span>
+                  </div>
+                </div>
+
+                {/* 입금자명 입력 */}
+                <div className={styles.transferForm}>
+                  <div>
+                    <label>입금자명</label>
                     <input
                       type="text"
-                      placeholder="쿠폰 코드를 입력하세요"
-                      value={couponCode}
-                      onChange={(e) =>
-                        setCouponCode(e.target.value.toUpperCase())
-                      }
-                      disabled={isValidatingCoupon}
+                      placeholder="입금하실 분의 성함"
+                      value={depositorName}
+                      onChange={(e) => setDepositorName(e.target.value)}
+                      disabled={isProcessing}
                     />
-                    <button
-                      className={styles.applyCouponButton}
-                      onClick={handleApplyCoupon}
-                      disabled={isValidatingCoupon || !couponCode.trim()}
-                    >
-                      {isValidatingCoupon ? "확인 중..." : "적용"}
-                    </button>
                   </div>
-                )}
-                {couponError && (
-                  <p className={styles.couponError}>{couponError}</p>
-                )}
-              </div>
 
-              {/* 계좌 정보 */}
-              <div className={styles.bankInfo}>
-                <h4>입금 계좌 정보</h4>
-                <div className={styles.bankDetail}>
-                  <span>은행명</span>
-                  <span>{BANK_INFO.bankName}</span>
-                </div>
-                <div className={styles.bankDetail}>
-                  <span>계좌번호</span>
-                  <span>{BANK_INFO.accountNumber}</span>
-                </div>
-                <div className={styles.bankDetail}>
-                  <span>예금주</span>
-                  <span>{BANK_INFO.accountHolder}</span>
-                </div>
-              </div>
-
-              {/* 결제 금액 */}
-              <div className={styles.summary}>
-                <div className={styles.summaryRow}>
-                  <span>상품 금액</span>
-                  <span>{ORIGINAL_PRICE.toLocaleString()}원</span>
-                </div>
-                {priceInfo.discountAmount > 0 && (
-                  <div className={styles.summaryRow}>
-                    <span>쿠폰 할인</span>
-                    <span className={styles.discount}>
-                      -{priceInfo.discountAmount.toLocaleString()}원
-                    </span>
+                  <div className={styles.transferNotice}>
+                    입금 후 관리자 확인이 완료되면 이용권이 지급됩니다.
                   </div>
-                )}
-                <div className={`${styles.summaryRow} ${styles.total}`}>
-                  <span>입금 금액</span>
-                  <span>{priceInfo.finalPrice.toLocaleString()}원</span>
                 </div>
+
+                {/* 에러 메시지 */}
+                {error && <div className={styles.errorMessage}>{error}</div>}
+
+                {/* 입금 확인 요청 버튼 */}
+                <button
+                  className={styles.requestButton}
+                  onClick={handleTransferRequest}
+                  disabled={isProcessing || !depositorName.trim()}
+                >
+                  {isProcessing ? (
+                    <>
+                      <SpinnerIcon />
+                      요청 중...
+                    </>
+                  ) : (
+                    <>입금 확인 요청</>
+                  )}
+                </button>
               </div>
-
-              {/* 입금자명 입력 */}
-              <div className={styles.transferForm}>
-                <div>
-                  <label>입금자명</label>
-                  <input
-                    type="text"
-                    placeholder="실제 입금하실 분의 성함을 입력하세요"
-                    value={depositorName}
-                    onChange={(e) => setDepositorName(e.target.value)}
-                    disabled={isProcessing}
-                  />
-                </div>
-
-                <div className={styles.transferNotice}>
-                  입금 후 관리자 확인이 완료되면 이용권이 지급됩니다.
-                  <br />
-                  입금자명이 다를 경우 확인이 지연될 수 있습니다.
-                </div>
-              </div>
-
-              {/* 에러 메시지 */}
-              {error && <div className={styles.errorMessage}>{error}</div>}
-
-              {/* 입금 확인 요청 버튼 */}
-              <button
-                className={styles.requestButton}
-                onClick={handleTransferRequest}
-                disabled={isProcessing || !depositorName.trim()}
-              >
-                {isProcessing ? (
-                  <>
-                    <SpinnerIcon />
-                    요청 중...
-                  </>
-                ) : (
-                  <>입금 확인 요청</>
-                )}
-              </button>
-            </>
+            </div>
           )}
         </div>
       </div>

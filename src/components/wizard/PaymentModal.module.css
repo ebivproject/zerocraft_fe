@@ -22,15 +22,12 @@
 
 .modal {
   width: 100%;
-  max-width: 540px;
-  max-height: 90vh;
+  max-width: 720px;
   background: var(--background);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -80,8 +77,20 @@
 
 .content {
   padding: 24px;
-  overflow-y: auto;
-  flex: 1;
+}
+
+/* Two Column Layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Payment Tabs */
@@ -121,10 +130,9 @@
 }
 
 .bankInfo {
-  padding: 20px;
+  padding: 16px;
   background: var(--background-secondary);
   border-radius: 12px;
-  margin-bottom: 20px;
 }
 
 .bankInfo h4 {
@@ -253,11 +261,10 @@
 .productInfo {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 16px;
   background: var(--background-secondary);
   border-radius: 12px;
-  margin-bottom: 24px;
 }
 
 .productIcon {
@@ -311,7 +318,6 @@
 
 /* Coupon Section */
 .couponSection {
-  margin-bottom: 24px;
 }
 
 .couponSection h4 {
@@ -487,7 +493,6 @@
   padding: 16px;
   background: var(--background-secondary);
   border-radius: 12px;
-  margin-bottom: 20px;
 }
 
 .summaryRow {
@@ -573,10 +578,16 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .modal {
+    max-width: 95%;
     max-height: 90vh;
     overflow-y: auto;
+  }
+
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .methodGrid {
