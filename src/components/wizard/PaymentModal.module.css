@@ -22,7 +22,7 @@
 
 .modal {
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   max-height: 90vh;
   background: var(--background);
   border-radius: 20px;
